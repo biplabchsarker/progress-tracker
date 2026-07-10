@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { User } from '../types/auth';
+import { queryClient } from '../services/queryClient';
 
 interface AuthState {
   accessToken: string | null;
@@ -11,6 +12,12 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
   user: null,
-  setSession: (accessToken, user) => set({ accessToken, user }),
-  clearSession: () => set({ accessToken: null, user: null }),
+  setSession: (accessToken, user) => {
+    queryClient.clear();
+    set({ accessToken, user });
+  },
+  clearSession: () => {
+    queryClient.clear();
+    set({ accessToken: null, user: null });
+  },
 }));

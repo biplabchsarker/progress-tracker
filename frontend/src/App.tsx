@@ -4,6 +4,8 @@ import DashboardPage from './pages/DashboardPage';
 import ClientsPage from './pages/ClientsPage';
 import TeamsPage from './pages/TeamsPage';
 import UsersPage from './pages/UsersPage';
+import ProjectsPage from './pages/ProjectsPage';
+import ProjectDetailPage from './pages/ProjectDetailPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleRoute from './components/RoleRoute';
 import AppLayout from './components/AppLayout';
@@ -16,6 +18,8 @@ export default function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/projects" element={<ProjectsPage />} />
+            <Route path="/projects/:id" element={<ProjectDetailPage />} />
             <Route element={<RoleRoute allow={['ADMIN', 'PM']} />}>
               <Route path="/clients" element={<ClientsPage />} />
               <Route path="/teams" element={<TeamsPage />} />

@@ -11,6 +11,7 @@ router.get('/me', controller.getMe);
 router.patch('/me', controller.updateMe);
 router.get('/', requirePM, controller.list);
 router.get('/:id', controller.getById);
+router.get('/:id/engagement', requirePM, controller.getEngagement);
 router.patch('/:id', requireAdmin, controller.updateAsAdmin);
 
 export default router;

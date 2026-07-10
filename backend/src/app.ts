@@ -9,6 +9,8 @@ import authRoutes from './modules/auth/auth.routes';
 import clientsRoutes from './modules/clients/clients.routes';
 import usersRoutes from './modules/users/users.routes';
 import teamsRoutes from './modules/teams/teams.routes';
+import projectsRoutes from './modules/projects/projects.routes';
+import taskRoutes, { projectTasksRouter } from './modules/tasks/tasks.routes';
 
 const app = express();
 
@@ -54,6 +56,9 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/clients', clientsRoutes);
 app.use('/api/v1/users', usersRoutes);
 app.use('/api/v1/teams', teamsRoutes);
+app.use('/api/v1/projects/:projectId/tasks', projectTasksRouter);
+app.use('/api/v1/projects', projectsRoutes);
+app.use('/api/v1/tasks', taskRoutes);
 
 // 404 for unmatched routes
 app.use((_req, res) => {

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { Role } from '@prisma/client';
 import * as usersService from './users.service';
+import * as projectsService from '../projects/projects.service';
 
 const listQuerySchema = z.object({
   role: z.nativeEnum(Role).optional(),
@@ -44,6 +45,15 @@ export async function getMe(req: Request, res: Response, next: NextFunction): Pr
   try {
     const user = await usersService.getById(req.user!, req.user!.sub);
     res.json({ user });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getEngagement(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const engagement = await projectsService.computeUserEngagement(req.params.id);
+    res.json(engagement);
   } catch (err) {
     next(err);
   }

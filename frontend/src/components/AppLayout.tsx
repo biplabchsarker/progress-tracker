@@ -28,6 +28,7 @@ export default function AppLayout() {
         <h1 className="text-white font-bold text-lg mb-6 px-2">Progress Tracker</h1>
         <nav className="space-y-1 flex-1">
           <NavLink to="/dashboard" className={navLinkClass}>Dashboard</NavLink>
+          <NavLink to="/projects" className={navLinkClass}>Projects</NavLink>
           {canManage && (
             <>
               <NavLink to="/clients" className={navLinkClass}>Clients</NavLink>
