@@ -11,17 +11,15 @@ async function start() {
     console.log(`[Server] Running on port ${env.PORT} (${env.NODE_ENV})`);
   });
 
-  const shutdown = async (signal: string) => {
+  const shutdown = (signal: string): void => {
     console.log(`[Server] ${signal} received — shutting down`);
-    server.close(async () => {
-      await prisma.$disconnect();
-      await redis.quit();
-      process.exit(0);
+    server.close(() => {
+      void Promise.all([prisma.$disconnect(), redis.quit()]).then(() => process.exit(0));
     });
   };
 
-  process.on('SIGTERM', () => void shutdown('SIGTERM'));
-  process.on('SIGINT',  () => void shutdown('SIGINT'));
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT',  () => shutdown('SIGINT'));
 }
 
 void start();
