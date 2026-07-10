@@ -11,6 +11,7 @@ import usersRoutes from './modules/users/users.routes';
 import teamsRoutes from './modules/teams/teams.routes';
 import projectsRoutes from './modules/projects/projects.routes';
 import taskRoutes, { projectTasksRouter } from './modules/tasks/tasks.routes';
+import dashboardRoutes from './modules/dashboard/dashboard.routes';
 
 const app = express();
 
@@ -59,6 +60,7 @@ app.use('/api/v1/teams', teamsRoutes);
 app.use('/api/v1/projects/:projectId/tasks', projectTasksRouter);
 app.use('/api/v1/projects', projectsRoutes);
 app.use('/api/v1/tasks', taskRoutes);
+app.use('/api/v1/dashboard', dashboardRoutes);
 
 // 404 for unmatched routes
 app.use((_req, res) => {

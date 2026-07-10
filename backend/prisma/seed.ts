@@ -53,6 +53,18 @@ async function main() {
     },
   });
 
+  // Viewer user
+  await prisma.user.upsert({
+    where: { email: 'viewer@example.com' },
+    update: {},
+    create: {
+      email: 'viewer@example.com',
+      name: 'View Only',
+      passwordHash: await bcrypt.hash('Viewer1234', 12),
+      role: Role.VIEWER,
+    },
+  });
+
   // Client
   const client = await prisma.client.upsert({
     where: { name: 'Acme Corporation' },
@@ -169,6 +181,7 @@ async function main() {
   console.log('  pm@example.com     / Manager1234');
   console.log('  dev1@example.com   / Member1234  (80% Acme client + 20% CRM)');
   console.log('  dev2@example.com   / Member1234  (100% CRM internal)');
+  console.log('  viewer@example.com / Viewer1234  (read-only)');
 }
 
 main()

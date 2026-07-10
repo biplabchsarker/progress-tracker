@@ -3,6 +3,14 @@ import { AppError } from '../../middleware/errorHandler';
 import type { JwtPayload } from '../../middleware/auth';
 import { isProjectMember } from '../projects/projects.service';
 
+const NON_OVERDUE_STATUSES = ['DONE', 'ARCHIVED'] as const;
+
+export function isOverdue(task: { dueDate: Date | null; status: string }): boolean {
+  if (!task.dueDate) return false;
+  if (NON_OVERDUE_STATUSES.includes(task.status as (typeof NON_OVERDUE_STATUSES)[number])) return false;
+  return task.dueDate < new Date();
+}
+
 function assertTaskCreationAllowed(project: { category: string; tasksEnabled: boolean }) {
   const allowed = project.category === 'INTERNAL' || (project.category === 'CLIENT' && project.tasksEnabled);
   if (!allowed) {

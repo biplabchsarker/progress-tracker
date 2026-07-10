@@ -2,15 +2,11 @@ import { useState, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { isAxiosError } from 'axios';
 import DataTable from '../components/DataTable';
+import CategoryBadge from '../components/CategoryBadge';
 import { useProjects, useCreateProject } from '../hooks/useProjects';
 import { useClients } from '../hooks/useClients';
 import { useAuthStore } from '../store/authStore';
 import type { Project, ProjectCategory } from '../types/entities';
-
-const CATEGORY_BADGE: Record<ProjectCategory, string> = {
-  CLIENT: 'bg-teal-950 text-teal-400 border-teal-800',
-  INTERNAL: 'bg-purple-950 text-purple-400 border-purple-800',
-};
 
 export default function ProjectsPage() {
   const user = useAuthStore((s) => s.user);
@@ -96,9 +92,7 @@ export default function ProjectsPage() {
             {
               key: 'category',
               header: 'Category',
-              render: (p) => (
-                <span className={`text-xs px-2 py-0.5 rounded-full border ${CATEGORY_BADGE[p.category]}`}>{p.category}</span>
-              ),
+              render: (p) => <CategoryBadge category={p.category} />,
             },
             { key: 'client', header: 'Client', render: (p) => p.client?.name ?? '—' },
             { key: 'status', header: 'Status', render: (p) => p.status },
