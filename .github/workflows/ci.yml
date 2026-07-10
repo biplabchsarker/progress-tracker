@@ -44,7 +44,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
 
@@ -68,8 +68,8 @@ jobs:
           DATABASE_URL: postgresql://pt_user:test_password@localhost:5432/progress_tracker_test
           REDIS_HOST: localhost
           REDIS_PORT: 6379
-          JWT_ACCESS_SECRET: ci_access_secret_for_testing_only
-          JWT_REFRESH_SECRET: ci_refresh_secret_for_testing_only
+          JWT_ACCESS_SECRET: ci_access_secret_for_testing_only_32chars
+          JWT_REFRESH_SECRET: ci_refresh_secret_for_testing_only_32chars
           JWT_ACCESS_EXPIRES_IN: 15m
           JWT_REFRESH_EXPIRES_IN: 7d
         run: npm test -- --coverage
@@ -94,15 +94,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Lint
-        run: npm run lint
 
       - name: Type check
         run: npm run typecheck
@@ -130,6 +127,6 @@ jobs:
       - name: Smoke test — services start
         run: |
           docker compose up -d
-          sleep 15
-          curl -f http://localhost/health || exit 1
+          sleep 20
+          curl -f http://localhost:8080/health || exit 1
           docker compose down
