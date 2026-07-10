@@ -1,5 +1,3 @@
-version: "3.9"
-
 # Dev overrides: hot reload, exposed ports for direct DB/Redis access
 
 services:
