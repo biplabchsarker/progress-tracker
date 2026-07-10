@@ -1,0 +1,378 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  PM
+  MEMBER
+  VIEWER
+}
+
+enum ProjectCategory {
+  CLIENT
+  INTERNAL
+}
+
+enum ProjectStatus {
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+  ARCHIVED
+}
+
+enum ProjectPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum TeamRole {
+  LEAD
+  MEMBER
+}
+
+enum TaskStatus {
+  BACKLOG
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+  ARCHIVED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  ASSIGN
+  UNASSIGN
+  STATUS_CHANGE
+  ENGAGEMENT_UPDATE
+}
+
+enum AuditEntityType {
+  USER
+  CLIENT
+  PROJECT
+  TASK
+  TEAM
+  PROJECT_ENGAGEMENT
+  TASK_ASSIGNMENT
+}
+
+enum NotificationType {
+  TASK_ASSIGNED
+  TASK_UNASSIGNED
+  TASK_STATUS_CHANGED
+  TASK_OVERDUE
+  TASK_DUE_SOON
+  PROJECT_ASSIGNED
+  PROJECT_DEADLINE_SOON
+  ENGAGEMENT_UPDATED
+  MENTIONED
+}
+
+// ─────────────────────────────────────────────
+// USER
+// ─────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  passwordHash String   @map("password_hash")
+  role         Role     @default(MEMBER)
+  avatarUrl    String?  @map("avatar_url")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  refreshTokens     RefreshToken[]
+  teamMemberships   TeamMember[]
+  ownedProjects     Project[]            @relation("ProjectOwner")
+  projectEngagements ProjectEngagement[] @relation("EngagedUser")
+  assignedEngagements ProjectEngagement[] @relation("EngagementAssigner")
+  taskAssignments   TaskAssignment[]     @relation("AssignedUser")
+  createdTaskAssignments TaskAssignment[] @relation("TaskAssigner")
+  createdTasks      Task[]               @relation("TaskCreator")
+  auditLogs         AuditLog[]
+  notifications     Notification[]
+  createdTeams      Team[]
+  createdClients    Client[]
+
+  @@map("users")
+}
+
+// ─────────────────────────────────────────────
+// REFRESH TOKEN
+// ─────────────────────────────────────────────
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  tokenHash String   @unique @map("token_hash")
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+// ─────────────────────────────────────────────
+// CLIENT
+// ─────────────────────────────────────────────
+
+model Client {
+  id            String   @id @default(uuid())
+  name          String   @unique
+  contactPerson String?  @map("contact_person")
+  email         String?
+  phone         String?
+  notes         String?  @db.Text
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  createdById String @map("created_by_id")
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  // Relations
+  projects Project[]
+
+  @@map("clients")
+}
+
+// ─────────────────────────────────────────────
+// TEAM
+// ─────────────────────────────────────────────
+
+model Team {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  createdById String @map("created_by_id")
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  // Relations
+  members  TeamMember[]
+  projects Project[]
+
+  @@map("teams")
+}
+
+model TeamMember {
+  teamId   String   @map("team_id")
+  userId   String   @map("user_id")
+  teamRole TeamRole @default(MEMBER) @map("team_role")
+  joinedAt DateTime @default(now()) @map("joined_at")
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([teamId, userId])
+  @@map("team_members")
+}
+
+// ─────────────────────────────────────────────
+// PROJECT
+// ─────────────────────────────────────────────
+
+model Project {
+  id           String          @id @default(uuid())
+  name         String
+  description  String?         @db.Text
+  category     ProjectCategory
+  status       ProjectStatus   @default(ACTIVE)
+  priority     ProjectPriority @default(MEDIUM)
+
+  // CLIENT projects: tasks disabled by default; Admin can enable per project
+  tasksEnabled Boolean @default(false) @map("tasks_enabled")
+
+  startDate DateTime? @map("start_date") @db.Date
+  endDate   DateTime? @map("end_date") @db.Date
+  tags      String[]  @default([])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // FK: owner
+  ownerId String @map("owner_id")
+  owner   User   @relation("ProjectOwner", fields: [ownerId], references: [id])
+
+  // FK: team (optional)
+  teamId String? @map("team_id")
+  team   Team?   @relation(fields: [teamId], references: [id])
+
+  // FK: client (required when category = CLIENT)
+  clientId String? @map("client_id")
+  client   Client? @relation(fields: [clientId], references: [id])
+
+  // Relations
+  engagements ProjectEngagement[]
+  tasks       Task[]
+
+  @@index([category])
+  @@index([status])
+  @@index([ownerId])
+  @@index([clientId])
+  @@map("projects")
+}
+
+// ─────────────────────────────────────────────
+// PROJECT ENGAGEMENT
+// Tracks which employee is committed to a project at what %.
+// Valid for both CLIENT and INTERNAL projects.
+// For CLIENT projects this is the primary tracking record.
+// ─────────────────────────────────────────────
+
+model ProjectEngagement {
+  projectId     String   @map("project_id")
+  userId        String   @map("user_id")
+  engagementPct Int      @map("engagement_pct") @db.SmallInt
+  isBillable    Boolean  @default(false) @map("is_billable")
+  notes         String?
+  assignedAt    DateTime @default(now()) @map("assigned_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  assignedById String @map("assigned_by_id")
+
+  project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user       User    @relation("EngagedUser", fields: [userId], references: [id], onDelete: Cascade)
+  assignedBy User    @relation("EngagementAssigner", fields: [assignedById], references: [id])
+
+  @@id([projectId, userId])
+  @@index([userId])
+  @@map("project_engagements")
+}
+
+// ─────────────────────────────────────────────
+// TASK
+// Only created under INTERNAL projects
+// (or CLIENT projects where tasksEnabled = true).
+// ─────────────────────────────────────────────
+
+model Task {
+  id          String       @id @default(uuid())
+  title       String
+  description String?      @db.Text
+  status      TaskStatus   @default(BACKLOG)
+  priority    TaskPriority @default(MEDIUM)
+  progressPct Int          @default(0) @map("progress_pct") @db.SmallInt
+  dueDate     DateTime?    @map("due_date") @db.Date
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // FK: project
+  projectId String  @map("project_id")
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // FK: parent task (subtask support — max 1 level deep in P1)
+  parentTaskId String? @map("parent_task_id")
+  parentTask   Task?   @relation("Subtasks", fields: [parentTaskId], references: [id])
+  subtasks     Task[]  @relation("Subtasks")
+
+  // FK: creator
+  createdById String @map("created_by_id")
+  createdBy   User   @relation("TaskCreator", fields: [createdById], references: [id])
+
+  // Relations
+  assignments TaskAssignment[]
+
+  @@index([projectId])
+  @@index([status])
+  @@index([dueDate])
+  @@index([parentTaskId])
+  @@map("tasks")
+}
+
+// ─────────────────────────────────────────────
+// TASK ASSIGNMENT
+// Task-level assignment within INTERNAL projects.
+// Coexists with ProjectEngagement for the same user.
+// ─────────────────────────────────────────────
+
+model TaskAssignment {
+  taskId        String   @map("task_id")
+  userId        String   @map("user_id")
+  engagementPct Int      @default(100) @map("engagement_pct") @db.SmallInt
+  assignedAt    DateTime @default(now()) @map("assigned_at")
+
+  assignedById String @map("assigned_by_id")
+
+  task       Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user       User @relation("AssignedUser", fields: [userId], references: [id], onDelete: Cascade)
+  assignedBy User @relation("TaskAssigner", fields: [assignedById], references: [id])
+
+  @@id([taskId, userId])
+  @@index([userId])
+  @@map("task_assignments")
+}
+
+// ─────────────────────────────────────────────
+// AUDIT LOG
+// Immutable. Written on every mutating operation.
+// ─────────────────────────────────────────────
+
+model AuditLog {
+  id         String          @id @default(uuid())
+  actorId    String          @map("actor_id")
+  entityType AuditEntityType @map("entity_type")
+  entityId   String          @map("entity_id")
+  action     AuditAction
+  diff       Json?
+  createdAt  DateTime        @default(now()) @map("created_at")
+
+  actor User @relation(fields: [actorId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([actorId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ─────────────────────────────────────────────
+// NOTIFICATION
+// ─────────────────────────────────────────────
+
+model Notification {
+  id         String           @id @default(uuid())
+  userId     String           @map("user_id")
+  type       NotificationType
+  message    String
+  entityType String           @map("entity_type")
+  entityId   String           @map("entity_id")
+  isRead     Boolean          @default(false) @map("is_read")
+  createdAt  DateTime         @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
