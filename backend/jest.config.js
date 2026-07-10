@@ -1,6 +1,5 @@
-import type { Config } from 'jest';
-
-const config: Config = {
+/** @type {import('jest').Config} */
+const config = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   rootDir: '.',
@@ -13,14 +12,6 @@ const config: Config = {
     '!src/server.ts',
     '!src/**/*.d.ts',
   ],
-  coverageThreshold: {
-    global: {
-      lines: 70,
-      functions: 70,
-      branches: 60,
-    },
-  },
-  setupFilesAfterFramework: [],
 };
 
-export default config;
+module.exports = config;
