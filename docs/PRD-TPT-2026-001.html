@@ -1,0 +1,1086 @@
+
+<title>PRD — Task & Project Progress Tracker v1.1</title>
+<style>
+  :root {
+    --bg:         #F2F5FA;
+    --surface:    #FFFFFF;
+    --surface2:   #EBF0F9;
+    --border:     #D1DAEA;
+    --border2:    #B8C7DF;
+    --text:       #0D1F3C;
+    --text2:      #3A5070;
+    --text3:      #6A82A0;
+    --accent:     #D97706;
+    --accent-bg:  #FEF3C7;
+    --accent-border: #F59E0B;
+    --navy:       #0D1F3C;
+    --navy2:      #1A3560;
+    --green:      #16A34A;
+    --green-bg:   #DCFCE7;
+    --red:        #DC2626;
+    --red-bg:     #FEE2E2;
+    --blue:       #2563EB;
+    --blue-bg:    #DBEAFE;
+    --purple:     #7C3AED;
+    --purple-bg:  #EDE9FE;
+    --teal:       #0891B2;
+    --teal-bg:    #CFFAFE;
+    --mono:       'Courier New', 'Consolas', monospace;
+    --serif:      Georgia, Cambria, 'Times New Roman', serif;
+    --sans:       -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:         #0A1628;
+      --surface:    #111E33;
+      --surface2:   #1B2E4A;
+      --border:     #253C5E;
+      --border2:    #334F72;
+      --text:       #E2EAF4;
+      --text2:      #9BAFC8;
+      --text3:      #6A82A0;
+      --accent:     #F59E0B;
+      --accent-bg:  #1C1500;
+      --accent-border: #92400E;
+      --navy:       #C5D4E8;
+      --navy2:      #8AAED4;
+      --green:      #4ADE80;
+      --green-bg:   #052E16;
+      --red:        #F87171;
+      --red-bg:     #2D0A0A;
+      --blue:       #60A5FA;
+      --blue-bg:    #0F1E3A;
+      --purple:     #A78BFA;
+      --purple-bg:  #1A0F2E;
+      --teal:       #22D3EE;
+      --teal-bg:    #0A1E2E;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#0A1628; --surface:#111E33; --surface2:#1B2E4A;
+    --border:#253C5E; --border2:#334F72; --text:#E2EAF4;
+    --text2:#9BAFC8; --text3:#6A82A0; --accent:#F59E0B;
+    --accent-bg:#1C1500; --accent-border:#92400E; --navy:#C5D4E8;
+    --navy2:#8AAED4; --green:#4ADE80; --green-bg:#052E16;
+    --red:#F87171; --red-bg:#2D0A0A; --blue:#60A5FA;
+    --blue-bg:#0F1E3A; --purple:#A78BFA; --purple-bg:#1A0F2E;
+    --teal:#22D3EE; --teal-bg:#0A1E2E;
+  }
+  :root[data-theme="light"] {
+    --bg:#F2F5FA; --surface:#FFFFFF; --surface2:#EBF0F9;
+    --border:#D1DAEA; --border2:#B8C7DF; --text:#0D1F3C;
+    --text2:#3A5070; --text3:#6A82A0; --accent:#D97706;
+    --accent-bg:#FEF3C7; --accent-border:#F59E0B; --navy:#0D1F3C;
+    --navy2:#1A3560; --green:#16A34A; --green-bg:#DCFCE7;
+    --red:#DC2626; --red-bg:#FEE2E2; --blue:#2563EB;
+    --blue-bg:#DBEAFE; --purple:#7C3AED; --purple-bg:#EDE9FE;
+    --teal:#0891B2; --teal-bg:#CFFAFE;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 15px; scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); line-height: 1.7; display: flex; min-height: 100vh; }
+
+  /* NAV */
+  nav { width: 245px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 28px 0 40px; }
+  .nav-brand { padding: 0 20px 20px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .nav-brand .doc-id { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; }
+  .nav-brand .doc-title { font-family: var(--serif); font-size: 13px; font-weight: 700; color: var(--navy); line-height: 1.3; }
+  .nav-version { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; font-size: 10px; font-family: var(--mono); color: var(--accent); background: var(--accent-bg); border: 1px solid var(--accent-border); padding: 2px 7px; border-radius: 3px; }
+  .nav-change { display: inline-flex; align-items: center; gap: 5px; margin-top: 4px; font-size: 10px; font-family: var(--mono); color: var(--green); background: var(--green-bg); border: 1px solid var(--green); padding: 2px 7px; border-radius: 3px; }
+  nav ul { list-style: none; padding: 0 10px; }
+  nav ul li a { display: block; padding: 6px 12px; font-size: 12px; color: var(--text2); text-decoration: none; border-radius: 5px; transition: background 0.15s, color 0.15s; }
+  nav ul li a:hover { background: var(--surface2); color: var(--text); }
+  nav ul li a.active { background: var(--surface2); color: var(--navy); font-weight: 600; }
+  .nav-section-label { font-size: 10px; font-family: var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--text3); padding: 14px 22px 4px; }
+  nav ul li a .sec-num { color: var(--text3); margin-right: 6px; font-family: var(--mono); font-size: 11px; }
+  .nav-new { font-size: 9px; font-family: var(--mono); color: var(--green); background: var(--green-bg); border: 1px solid var(--green); padding: 1px 5px; border-radius: 2px; margin-left: 4px; vertical-align: middle; }
+  .nav-upd { font-size: 9px; font-family: var(--mono); color: var(--accent); background: var(--accent-bg); border: 1px solid var(--accent-border); padding: 1px 5px; border-radius: 2px; margin-left: 4px; vertical-align: middle; }
+
+  /* MAIN */
+  main { flex: 1; min-width: 0; max-width: 880px; padding: 48px 52px 80px; }
+
+  /* HEADER */
+  .doc-header { border-bottom: 2px solid var(--navy); padding-bottom: 28px; margin-bottom: 48px; }
+  .doc-eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+  .doc-header h1 { font-family: var(--serif); font-size: 2.4rem; font-weight: 700; color: var(--navy); line-height: 1.2; text-wrap: balance; margin-bottom: 10px; }
+  .doc-header h1 span { color: var(--accent); }
+  .doc-subtitle { font-size: 15px; color: var(--text2); margin-bottom: 20px; max-width: 62ch; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 18px; }
+  .meta-item { font-size: 12px; color: var(--text3); }
+  .meta-item strong { color: var(--text2); margin-right: 4px; }
+  .changelog { margin-top: 20px; background: var(--green-bg); border: 1px solid var(--green); border-radius: 7px; padding: 12px 16px; }
+  .changelog-title { font-size: 11px; font-family: var(--mono); color: var(--green); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
+  .changelog ul { list-style: none; padding: 0; }
+  .changelog ul li { font-size: 12px; color: var(--text2); padding: 2px 0; display: flex; gap: 8px; }
+  .changelog ul li::before { content: "+"; color: var(--green); font-weight: 700; flex-shrink: 0; }
+
+  /* SECTIONS */
+  section { margin-bottom: 56px; scroll-margin-top: 24px; }
+  section + section { border-top: 1px solid var(--border); padding-top: 48px; }
+  h2 { font-family: var(--serif); font-size: 1.55rem; font-weight: 700; color: var(--navy); line-height: 1.25; text-wrap: balance; margin-bottom: 6px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  h2 .sec-label { font-family: var(--mono); font-size: 11px; color: var(--text3); font-weight: 400; letter-spacing: .08em; }
+  h2 .badge-new { font-size: 10px; font-family: var(--mono); color: var(--green); background: var(--green-bg); border: 1px solid var(--green); padding: 2px 7px; border-radius: 3px; font-weight: 600; }
+  h2 .badge-upd { font-size: 10px; font-family: var(--mono); color: var(--accent); background: var(--accent-bg); border: 1px solid var(--accent-border); padding: 2px 7px; border-radius: 3px; font-weight: 600; }
+  .section-lead { color: var(--text2); font-size: 14px; margin-bottom: 24px; border-left: 3px solid var(--accent); padding-left: 14px; max-width: 65ch; }
+  h3 { font-size: 13px; font-weight: 700; color: var(--text); margin: 28px 0 10px; text-transform: uppercase; letter-spacing: .06em; }
+  h4 { font-size: 14px; font-weight: 600; color: var(--navy2); margin: 20px 0 8px; }
+  p { color: var(--text2); font-size: 14px; max-width: 68ch; margin-bottom: 10px; }
+
+  /* PILLS */
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 3px; font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: .04em; }
+  .pill-draft   { background: var(--accent-bg);  color: var(--accent); border: 1px solid var(--accent-border); }
+  .pill-p1      { background: var(--blue-bg);    color: var(--blue);   border: 1px solid var(--blue); }
+  .pill-must    { background: var(--red-bg);      color: var(--red);    border: 1px solid var(--red); }
+  .pill-should  { background: var(--accent-bg);   color: var(--accent); border: 1px solid var(--accent-border); }
+  .pill-nice    { background: var(--surface2);    color: var(--text2);  border: 1px solid var(--border); }
+  .pill-client  { background: var(--teal-bg);     color: var(--teal);   border: 1px solid var(--teal); }
+  .pill-internal{ background: var(--purple-bg);   color: var(--purple); border: 1px solid var(--purple); }
+  .pill-new     { background: var(--green-bg);    color: var(--green);  border: 1px solid var(--green); }
+
+  /* TABLES */
+  .table-wrap { overflow-x: auto; margin: 16px 0 24px; border-radius: 8px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: var(--surface2); }
+  thead th { text-align: left; padding: 10px 14px; font-size: 11px; font-family: var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--text3); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface2); }
+  tbody td { padding: 10px 14px; color: var(--text2); vertical-align: top; line-height: 1.5; }
+  tbody td:first-child { font-family: var(--mono); font-size: 12px; color: var(--text3); white-space: nowrap; }
+  tbody td strong { color: var(--text); font-weight: 600; }
+  tr.row-new td { background: color-mix(in srgb, var(--green-bg) 40%, transparent); }
+  tr.row-upd td { background: color-mix(in srgb, var(--accent-bg) 40%, transparent); }
+
+  /* STORY CARDS */
+  .story-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; margin-bottom: 12px; }
+  .story-card.new-story { border-color: var(--green); }
+  .story-id { font-family: var(--mono); font-size: 10px; color: var(--accent); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 5px; }
+  .story-text { font-size: 14px; color: var(--text); font-weight: 500; margin-bottom: 10px; line-height: 1.5; }
+  .story-ac { font-size: 12px; color: var(--text2); margin: 0; padding-left: 18px; }
+  .story-ac li { margin-bottom: 3px; }
+  .story-meta { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+  /* ENTITY CARDS */
+  .entity-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin: 16px 0; }
+  .entity-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .entity-card.new-entity { border-color: var(--green); }
+  .entity-card.upd-entity { border-color: var(--accent); }
+  .entity-header { padding: 10px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .entity-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .entity-name { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--text); letter-spacing: .04em; }
+  .entity-badge { font-size: 9px; font-family: var(--mono); padding: 1px 5px; border-radius: 2px; margin-left: auto; }
+  .eb-new { background: var(--green-bg); color: var(--green); border: 1px solid var(--green); }
+  .eb-upd { background: var(--accent-bg); color: var(--accent); border: 1px solid var(--accent-border); }
+  .entity-fields { padding: 10px 14px; list-style: none; }
+  .entity-fields li { font-family: var(--mono); font-size: 11px; color: var(--text3); padding: 2px 0; display: flex; gap: 8px; }
+  .entity-fields li .fname { color: var(--text2); }
+  .entity-fields li .ftype { color: var(--accent); font-size: 10px; }
+  .entity-fields li.pk .fname { color: var(--blue); font-weight: 700; }
+  .entity-fields li.fk .fname { color: var(--purple); }
+  .entity-fields li.new-field .fname { color: var(--green); }
+  .entity-fields li.new-field .ftype { color: var(--green); opacity: 0.8; }
+
+  /* CALLOUTS */
+  .callout { border-radius: 7px; padding: 14px 18px; margin: 16px 0; font-size: 13px; line-height: 1.6; display: flex; gap: 12px; }
+  .callout-icon { flex-shrink: 0; font-size: 16px; line-height: 1; margin-top: 1px; }
+  .callout-body { color: var(--text2); }
+  .callout-body strong { color: var(--text); }
+  .callout.note   { background: var(--blue-bg);   border-left: 3px solid var(--blue); }
+  .callout.warn   { background: var(--accent-bg);  border-left: 3px solid var(--accent); }
+  .callout.risk   { background: var(--red-bg);     border-left: 3px solid var(--red); }
+  .callout.scope  { background: var(--purple-bg);  border-left: 3px solid var(--purple); }
+  .callout.added  { background: var(--green-bg);   border-left: 3px solid var(--green); }
+
+  /* STATUS FLOW */
+  .status-flow { display: flex; align-items: center; flex-wrap: wrap; gap: 0; margin: 16px 0; }
+  .status-node { background: var(--surface); border: 1.5px solid var(--border); border-radius: 6px; padding: 7px 14px; font-size: 12px; font-weight: 600; color: var(--text2); white-space: nowrap; }
+  .status-node.active { border-color: var(--blue); color: var(--blue); background: var(--blue-bg); }
+  .status-arrow { font-size: 16px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+
+  /* DASHBOARD MOCKUPS */
+  .dash-mock { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 16px 0 24px; }
+  .dash-mock-header { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 10px 16px; display: flex; align-items: center; gap: 8px; }
+  .dash-mock-title { font-size: 12px; font-weight: 700; color: var(--text); }
+  .dash-mock-role { font-size: 10px; font-family: var(--mono); padding: 2px 7px; border-radius: 3px; }
+  .role-admin    { background: var(--red-bg);    color: var(--red);    border: 1px solid var(--red); }
+  .role-pm       { background: var(--blue-bg);   color: var(--blue);   border: 1px solid var(--blue); }
+  .role-member   { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple); }
+  .role-viewer   { background: var(--surface2);  color: var(--text3);  border: 1px solid var(--border); }
+  .dash-mock-body { padding: 14px 16px; }
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .stat-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; }
+  .stat-val { font-size: 22px; font-weight: 700; color: var(--navy); font-variant-numeric: tabular-nums; line-height: 1; }
+  .stat-label { font-size: 11px; color: var(--text3); margin-top: 3px; }
+  .stat-card.warn .stat-val { color: var(--red); }
+  .stat-card.ok  .stat-val { color: var(--green); }
+  .emp-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .emp-row:last-child { border-bottom: none; }
+  .emp-name { width: 90px; color: var(--text); font-weight: 600; flex-shrink: 0; }
+  .emp-bar-wrap { flex: 1; height: 14px; background: var(--surface2); border-radius: 3px; overflow: hidden; display: flex; }
+  .emp-bar-client   { background: var(--teal);   height: 100%; }
+  .emp-bar-internal { background: var(--purple); height: 100%; }
+  .emp-pct { width: 36px; text-align: right; font-family: var(--mono); font-size: 11px; color: var(--text3); flex-shrink: 0; }
+  .emp-alert { font-size: 10px; font-family: var(--mono); padding: 1px 5px; border-radius: 3px; flex-shrink: 0; }
+  .alert-over  { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red); }
+  .alert-under { background: var(--accent-bg); color: var(--accent); border: 1px solid var(--accent-border); }
+  .bar-legend { display: flex; gap: 16px; margin-bottom: 8px; }
+  .bar-legend span { font-size: 11px; color: var(--text3); display: flex; align-items: center; gap: 5px; }
+  .leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* TWO-COL */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 14px 0; }
+  .mini-list { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .mini-list-header { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 8px 12px; font-size: 11px; font-weight: 700; color: var(--text2); letter-spacing: .04em; text-transform: uppercase; }
+  .mini-list-row { padding: 7px 12px; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text2); display: flex; justify-content: space-between; align-items: center; }
+  .mini-list-row:last-child { border-bottom: none; }
+  .mini-badge { font-size: 10px; font-family: var(--mono); padding: 1px 6px; border-radius: 3px; }
+  .mb-client   { background: var(--teal-bg);   color: var(--teal);   border: 1px solid var(--teal); }
+  .mb-internal { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple); }
+  .mb-pct      { background: var(--surface2);  color: var(--text3);  border: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+
+  /* PHASE ROWS */
+  .phase-row { display: grid; grid-template-columns: 160px 1fr; border: 1px solid var(--border); }
+  .phase-row:first-child { border-radius: 8px 8px 0 0; }
+  .phase-row:last-child  { border-radius: 0 0 8px 8px; }
+  .phase-row + .phase-row { border-top: none; }
+  .phase-label { background: var(--surface2); padding: 14px 16px; border-right: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; }
+  .phase-label .ph-name { font-weight: 700; font-size: 13px; color: var(--navy); }
+  .phase-label .ph-weeks { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .phase-content { padding: 14px 18px; background: var(--surface); }
+  .phase-content ul { list-style: none; padding: 0; }
+  .phase-content ul li { font-size: 13px; color: var(--text2); padding: 2px 0; display: flex; align-items: baseline; gap: 8px; }
+  .phase-content ul li::before { content: "–"; color: var(--text3); flex-shrink: 0; }
+
+  /* RISK ROWS */
+  .risk-hi  td:first-child { border-left: 3px solid var(--red); }
+  .risk-med td:first-child { border-left: 3px solid var(--accent); }
+  .risk-lo  td:first-child { border-left: 3px solid var(--green); }
+
+  /* NFR */
+  .nfr-row td:nth-child(3) { font-family: var(--mono); font-size: 12px; color: var(--green); }
+
+  code { font-family: var(--mono); font-size: 12px; background: var(--surface2); border: 1px solid var(--border); padding: 1px 5px; border-radius: 3px; color: var(--navy2); }
+
+  @media (max-width: 800px) {
+    body { flex-direction: column; }
+    nav { width: 100%; height: auto; position: static; border-right: none; border-bottom: 1px solid var(--border); }
+    main { padding: 28px 20px 60px; }
+    .entity-grid, .two-col { grid-template-columns: 1fr; }
+    .phase-row { grid-template-columns: 1fr; }
+    .phase-label { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
+
+<nav id="sidenav">
+  <div class="nav-brand">
+    <div class="doc-id">PRD-TPT-2026</div>
+    <div class="doc-title">Task & Project Progress Tracker</div>
+    <div class="nav-version">Phase 1 · v1.1</div>
+    <div class="nav-change">Rev: Dashboard + Client model</div>
+  </div>
+  <div class="nav-section-label">Document</div>
+  <ul>
+    <li><a href="#overview"><span class="sec-num">1</span>Overview</a></li>
+    <li><a href="#stakeholders"><span class="sec-num">2</span>Stakeholders</a></li>
+    <li><a href="#scope"><span class="sec-num">3</span>Scope</a></li>
+    <li><a href="#personas"><span class="sec-num">4</span>User Personas</a></li>
+  </ul>
+  <div class="nav-section-label">Requirements</div>
+  <ul>
+    <li><a href="#projectmodel"><span class="sec-num">5</span>Project Model <span class="nav-new">NEW</span></a></li>
+    <li><a href="#functional"><span class="sec-num">6</span>Functional <span class="nav-upd">UPD</span></a></li>
+    <li><a href="#dashboards"><span class="sec-num">7</span>Dashboards <span class="nav-new">NEW</span></a></li>
+    <li><a href="#stories"><span class="sec-num">8</span>User Stories <span class="nav-upd">UPD</span></a></li>
+    <li><a href="#nfr"><span class="sec-num">9</span>Non-Functional</a></li>
+    <li><a href="#datamodel"><span class="sec-num">10</span>Data Model <span class="nav-upd">UPD</span></a></li>
+  </ul>
+  <div class="nav-section-label">Architecture</div>
+  <ul>
+    <li><a href="#tech"><span class="sec-num">11</span>Tech Stack</a></li>
+    <li><a href="#api"><span class="sec-num">12</span>API Contracts <span class="nav-upd">UPD</span></a></li>
+    <li><a href="#docker"><span class="sec-num">13</span>Docker Design</a></li>
+  </ul>
+  <div class="nav-section-label">Delivery</div>
+  <ul>
+    <li><a href="#timeline"><span class="sec-num">14</span>Milestones <span class="nav-upd">UPD</span></a></li>
+    <li><a href="#risks"><span class="sec-num">15</span>Risks</a></li>
+    <li><a href="#acceptance"><span class="sec-num">16</span>Acceptance Criteria <span class="nav-upd">UPD</span></a></li>
+  </ul>
+</nav>
+
+<main>
+  <!-- HEADER -->
+  <header class="doc-header">
+    <div class="doc-eyebrow">Product Requirements Document — Revision 1.1</div>
+    <h1>Task & Project <span>Progress Tracker</span></h1>
+    <p class="doc-subtitle">A full-stack, containerized application for tracking tasks, client engagements, and team capacity — giving every role a dashboard that answers their specific question without manual chasing.</p>
+    <div class="meta-row">
+      <div class="meta-item"><strong>Doc ID</strong> PRD-TPT-2026-001</div>
+      <div class="meta-item"><strong>Status</strong> <span class="pill pill-draft">Draft</span></div>
+      <div class="meta-item"><strong>Phase</strong> <span class="pill pill-p1">P1 — Core</span></div>
+      <div class="meta-item"><strong>Revised</strong> 10 July 2026</div>
+      <div class="meta-item"><strong>Version</strong> 1.1</div>
+    </div>
+    <div class="changelog">
+      <div class="changelog-title">v1.1 Changes</div>
+      <ul>
+        <li>Added Client entity and CLIENT vs INTERNAL project category model</li>
+        <li>Added ProjectEngagement — project-level engagement % separate from task-level assignment</li>
+        <li>Replaced single dashboard with 4 role-specific dashboards (Admin, PM, Member, Viewer)</li>
+        <li>Admin dashboard: company-wide capacity, billable vs non-billable headcount, per-employee engagement breakdown</li>
+        <li>CLIENT projects: engagement-only tracking (no daily task drill-down required)</li>
+        <li>Mixed engagement model: employee can split across client and internal work (e.g. 80% client + 20% internal)</li>
+        <li>Added F-13 (Client Management), F-14 (Project Category), F-15 (Project Engagement); updated F-09 (Dashboards)</li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- 1. OVERVIEW -->
+  <section id="overview">
+    <h2><span class="sec-label">§1</span> Overview</h2>
+    <p class="section-lead">Problem statement, core insight, and the single measurable outcome this product must achieve.</p>
+    <h3>Problem Statement</h3>
+    <p>When tasks are assigned across teams, two distinct problems emerge simultaneously: (1) internal project work slips — deadlines pass silently, no one knows who is stuck; and (2) client-facing resources are invisible at the company level — management cannot see that an employee is 80% committed to a paid client before assigning them to an internal initiative.</p>
+    <h3>Core Insight</h3>
+    <div class="callout added">
+      <div class="callout-icon">→</div>
+      <div class="callout-body">Not all work requires the same tracking depth. <strong>Client projects</strong> need engagement visibility — who is on it and at what commitment. <strong>Internal projects</strong> need task-level tracking — what is the status, what is overdue. The system must handle both, and Admin must see the full picture across both types simultaneously.</div>
+    </div>
+    <h3>Product Objective</h3>
+    <p>Build a web application where every role gets a dashboard that answers their question in under 10 seconds — without asking anyone. Admin sees company capacity. PM sees project health. Member sees their own workload. All data is live.</p>
+  </section>
+
+  <!-- 2. STAKEHOLDERS -->
+  <section id="stakeholders">
+    <h2><span class="sec-label">§2</span> Stakeholders</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Role</th><th>Stake</th><th>Primary Question</th></tr></thead>
+        <tbody>
+          <tr><td>Admin</td><td>Company owner / operations lead</td><td>"Who is doing what, at what capacity, and how much of it is paid client work?"</td></tr>
+          <tr><td>Project Manager</td><td>Owns projects (client or internal)</td><td>"Is my project on track? Who is blocked or overdue?"</td></tr>
+          <tr><td>Team Member</td><td>Works on tasks and/or client engagements</td><td>"What do I need to do today, and what am I committed to?"</td></tr>
+          <tr><td>Viewer / Guest</td><td>Stakeholder with read access only</td><td>"What is the overall health of this project?"</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 3. SCOPE -->
+  <section id="scope">
+    <h2><span class="sec-label">§3</span> Scope <span class="badge-upd">UPDATED</span></h2>
+    <p class="section-lead">What is in Phase 1, and what is explicitly deferred.</p>
+    <h3>In Scope — Phase 1</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Feature Area</th><th>Priority</th></tr></thead>
+        <tbody>
+          <tr><td>F-01</td><td><strong>Authentication</strong> — Register, login, logout, JWT sessions, password reset</td><td><span class="pill pill-must">MUST</span></td></tr>
+          <tr><td>F-02</td><td><strong>User Management</strong> — CRUD users, roles (Admin/PM/Member/Viewer), profile</td><td><span class="pill pill-must">MUST</span></td></tr>
+          <tr><td>F-03</td><td><strong>Team Management</strong> — Create teams, add/remove members</td><td><span class="pill pill-must">MUST</span></td></tr>
+          <tr class="row-new"><td>F-13</td><td><strong>Client Management</strong> — CRUD clients (company name, contact, notes)</td><td><span class="pill pill-must">MUST</span></td></tr>
+          <tr class="row-new"><td>F-14</td><td><strong>Project Category</strong> — Every project is CLIENT or INTERNAL; CLIENT projects link to a Client record</td><td><span class="pill pill-must">MUST</span></td></tr>
+          <tr><td>F-04</td><td><strong>Project Management</strong> — CRUD projects, status, priority, start/end dates, tags</td><td><span class="pill pill-must">MUST</span></td></tr>
+          <tr><td>F-05</td><td><strong>Task Management</strong> — CRUD tasks, subtasks, status workflow (INTERNAL projects only)</td><td><span class="pill pill-must">MUST</span></td></tr>
+          <tr class="row-new"><td>F-15</td><td><strong>Project-Level Engagement</strong> — Assign employees to projects with engagement %, valid for both CLIENT and INTERNAL types</td><td><span class="pill pill-must">MUST</span></td></tr>
+          <tr><td>F-06</td><td><strong>Task Assignment</strong> — Assign tasks to users within INTERNAL projects; engagement % per assignee at task level</td><td><span class="pill pill-must">MUST</span></td></tr>
+          <tr><td>F-07</td><td><strong>Progress Tracking</strong> — Update task % complete, status transitions, activity log (INTERNAL projects)</td><td><span class="pill pill-must">MUST</span></td></tr>
+          <tr><td>F-08</td><td><strong>Deadline Management</strong> — Due dates, overdue flag, deadline proximity indicator</td><td><span class="pill pill-must">MUST</span></td></tr>
+          <tr class="row-upd"><td>F-09</td><td><strong>Role-Specific Dashboards</strong> — Admin (company capacity), PM (project health), Member (my workload), Viewer (read-only)</td><td><span class="pill pill-must">MUST</span></td></tr>
+          <tr><td>F-10</td><td><strong>Audit Log</strong> — Immutable record of all changes with actor, timestamp, diff</td><td><span class="pill pill-should">SHOULD</span></td></tr>
+          <tr><td>F-11</td><td><strong>In-app Notifications</strong> — Assignment, status change, approaching deadline</td><td><span class="pill pill-should">SHOULD</span></td></tr>
+          <tr><td>F-12</td><td><strong>Search & Filter</strong> — Search tasks/projects, filter by status/assignee/priority/category</td><td><span class="pill pill-should">SHOULD</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout scope">
+      <div class="callout-icon">⊘</div>
+      <div class="callout-body"><strong>P2:</strong> Gantt chart, file attachments, workload heat-map, engagement hard-cap enforcement.<br><strong>P3:</strong> PDF report export, weekly digest email, Slack integration, billable hours / time-logging, invoicing hooks.</div>
+    </div>
+  </section>
+
+  <!-- 4. PERSONAS -->
+  <section id="personas">
+    <h2><span class="sec-label">§4</span> User Personas</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Persona</th><th>Context</th><th>Core Goal</th><th>Frustration Today</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Nadia — Admin</strong></td><td>Operations lead, 24-person company, mix of client projects and internal product</td><td>Know company capacity utilization: who is on paid client work, who is free</td><td>Has to manually ask PMs every week to build a spreadsheet of "who is doing what"</td></tr>
+          <tr><td><strong>Rafiq — PM (Internal)</strong></td><td>Manages internal product dev, 8-person team</td><td>Know what is at risk before it becomes a problem</td><td>Sends "just checking in" Slack messages daily to get status updates</td></tr>
+          <tr><td><strong>Lena — PM (Client)</strong></td><td>Manages 2 client engagements simultaneously</td><td>Know her engaged headcount and their commitment % per client</td><td>No visibility when a developer is quietly pulled onto another project mid-engagement</td></tr>
+          <tr><td><strong>Dev — Member</strong></td><td>80% on ClientProjectX, 20% on internal CRM tool</td><td>Clear view of all my commitments — client and internal</td><td>Gets assigned internal tasks with no awareness of his client engagement load</td></tr>
+          <tr><td><strong>Tanya — Viewer</strong></td><td>Senior stakeholder, no execution role</td><td>Spot-check project health without attending status meetings</td><td>Status reports are stale and manually prepared</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 5. PROJECT MODEL -->
+  <section id="projectmodel">
+    <h2><span class="sec-label">§5</span> Project Category Model <span class="badge-new">NEW</span></h2>
+    <p class="section-lead">The single most important design decision in v1.1 — how CLIENT and INTERNAL projects differ in behavior.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Attribute</th><th>CLIENT Project</th><th>INTERNAL Project</th></tr></thead>
+        <tbody>
+          <tr><td>Purpose</td><td>Paid client engagement</td><td>Company's own product / platform</td></tr>
+          <tr><td>Links to</td><td>Client record (name, contact)</td><td>No client — internal only</td></tr>
+          <tr><td>Tracking mode</td><td>Engagement-only (who, at what %)</td><td>Full task tracking (status, progress, subtasks)</td></tr>
+          <tr><td>Task creation</td><td>Not required; disabled by default</td><td>Required; full workflow enforced</td></tr>
+          <tr><td>Progress metric</td><td>Engagement % per employee</td><td>Task completion % + status breakdown</td></tr>
+          <tr><td>Visible on Admin dash</td><td>Yes — headcount + engagement</td><td>Yes — progress + overdue count</td></tr>
+          <tr><td>Deadline tracked</td><td>Project-level only</td><td>Project + per-task</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Engagement Split Model</h3>
+    <p>A single employee's capacity is modelled as 100%. That 100% can be split across any number of projects (client or internal). The system tracks this at <strong>project level</strong> via <code>ProjectEngagement</code> — separate from task-level assignment.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Employee</th><th>Project</th><th>Type</th><th>Engagement %</th><th>Total</th></tr></thead>
+        <tbody>
+          <tr><td>Dev</td><td>ClientProject X</td><td><span class="pill pill-client">CLIENT</span></td><td>80%</td><td rowspan="2" style="vertical-align:middle; font-family:var(--mono); color:var(--green); font-weight:700;">100% ✓</td></tr>
+          <tr><td>Dev</td><td>Internal CRM</td><td><span class="pill pill-internal">INTERNAL</span></td><td>20%</td></tr>
+          <tr><td>Sarah</td><td>ClientProject Y</td><td><span class="pill pill-client">CLIENT</span></td><td>100%</td><td style="font-family:var(--mono); color:var(--green); font-weight:700;">100% ✓</td></tr>
+          <tr><td>James</td><td>Internal Mobile App</td><td><span class="pill pill-internal">INTERNAL</span></td><td>40%</td><td style="font-family:var(--mono); color:var(--accent); font-weight:700;">40% ⚠</td></tr>
+          <tr><td>Tom</td><td>ClientProject X</td><td><span class="pill pill-client">CLIENT</span></td><td>70%</td><td rowspan="2" style="vertical-align:middle; font-family:var(--mono); color:var(--red); font-weight:700;">120% ✗</td></tr>
+          <tr><td>Tom</td><td>Internal CRM</td><td><span class="pill pill-internal">INTERNAL</span></td><td>50%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout warn">
+      <div class="callout-icon">!</div>
+      <div class="callout-body"><strong>P1 rule:</strong> Over-allocation (total engagement &gt; 100%) shows a warning badge on Admin dashboard and assignment dialog — it is not a hard block. Hard enforcement (prevent over-assignment) is deferred to P2.</div>
+    </div>
+  </section>
+
+  <!-- 6. FUNCTIONAL -->
+  <section id="functional">
+    <h2><span class="sec-label">§6</span> Functional Requirements <span class="badge-upd">UPDATED</span></h2>
+    <p class="section-lead">Key behavioral rules, including all additions from v1.1.</p>
+
+    <h4>F-13 — Client Management</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Requirement</th></tr></thead>
+        <tbody>
+          <tr><td>F-13.1</td><td>Admin and PM can create a Client with: name (required), contact person, email, phone, notes.</td></tr>
+          <tr><td>F-13.2</td><td>A Client can have multiple associated CLIENT projects.</td></tr>
+          <tr><td>F-13.3</td><td>Deleting a Client is blocked if active projects reference it. Archiving is allowed.</td></tr>
+          <tr><td>F-13.4</td><td>Client list is visible to Admin; PM sees only clients whose projects they manage.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>F-14 — Project Category</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Requirement</th></tr></thead>
+        <tbody>
+          <tr><td>F-14.1</td><td>Every project must have a <code>category</code> field: <code>CLIENT</code> or <code>INTERNAL</code>. Cannot be changed after creation without Admin approval (audit-logged).</td></tr>
+          <tr><td>F-14.2</td><td>CLIENT projects require a <code>client_id</code> at creation.</td></tr>
+          <tr><td>F-14.3</td><td>The task creation UI is hidden / disabled for CLIENT projects by default. An Admin can enable it per project if ad-hoc tracking is needed.</td></tr>
+          <tr><td>F-14.4</td><td>Project lists across the app show a CLIENT or INTERNAL badge for instant scanning.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>F-15 — Project-Level Engagement</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Requirement</th></tr></thead>
+        <tbody>
+          <tr><td>F-15.1</td><td>Any project (CLIENT or INTERNAL) can have employees assigned with a <code>ProjectEngagement</code> record containing <code>engagement_pct</code>.</td></tr>
+          <tr><td>F-15.2</td><td>For CLIENT projects, <code>ProjectEngagement</code> is the primary tracking artefact — it replaces task-level assignment.</td></tr>
+          <tr><td>F-15.3</td><td>For INTERNAL projects, <code>ProjectEngagement</code> and <code>TaskAssignment</code> coexist. A member can be on the project roster (ProjectEngagement) without being assigned to every task.</td></tr>
+          <tr><td>F-15.4</td><td>The system computes each user's <strong>total active engagement</strong> = sum of <code>engagement_pct</code> across all their active <code>ProjectEngagement</code> records. This figure drives Admin dashboard.</td></tr>
+          <tr><td>F-15.5</td><td>When assigning an employee to a project, the dialog shows their current total engagement and a preview of the new total after adding.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>F-05 (updated) — Task Workflow Applies to INTERNAL Only</h4>
+    <div class="status-flow">
+      <div class="status-node">Backlog</div><div class="status-arrow">→</div>
+      <div class="status-node active">To Do</div><div class="status-arrow">→</div>
+      <div class="status-node active">In Progress</div><div class="status-arrow">→</div>
+      <div class="status-node">In Review</div><div class="status-arrow">→</div>
+      <div class="status-node">Done</div><div class="status-arrow">→</div>
+      <div class="status-node">Archived</div>
+    </div>
+    <p style="font-size:12px; color:var(--text3); margin-top:4px;">State machine applies only to tasks in INTERNAL projects. CLIENT projects have no task workflow.</p>
+  </section>
+
+  <!-- 7. DASHBOARDS -->
+  <section id="dashboards">
+    <h2><span class="sec-label">§7</span> Role-Specific Dashboards <span class="badge-new">NEW</span></h2>
+    <p class="section-lead">Four distinct dashboard views — each answers the primary question for that role and surfaces only what is relevant to them.</p>
+
+    <!-- ADMIN DASHBOARD -->
+    <h3>Admin Dashboard — Company Capacity View</h3>
+    <p>The Admin's primary question: <em>"Who is on what, at what load, and how much of it is paid work?"</em></p>
+
+    <div class="dash-mock">
+      <div class="dash-mock-header">
+        <span class="dash-mock-title">Company Dashboard</span>
+        <span class="dash-mock-role role-admin">ADMIN</span>
+      </div>
+      <div class="dash-mock-body">
+        <div class="stat-row">
+          <div class="stat-card"><div class="stat-val">24</div><div class="stat-label">Total headcount</div></div>
+          <div class="stat-card ok"><div class="stat-val">18</div><div class="stat-label">On client work</div></div>
+          <div class="stat-card"><div class="stat-val">4</div><div class="stat-label">Internal only</div></div>
+          <div class="stat-card warn"><div class="stat-val">2</div><div class="stat-label">Over-allocated ⚠</div></div>
+          <div class="stat-card"><div class="stat-val">87%</div><div class="stat-label">Avg utilization</div></div>
+        </div>
+        <div class="bar-legend">
+          <span><span class="leg-dot" style="background:var(--teal)"></span>Client engagement</span>
+          <span><span class="leg-dot" style="background:var(--purple)"></span>Internal engagement</span>
+        </div>
+        <div class="emp-row"><div class="emp-name">Dev K.</div><div class="emp-bar-wrap"><div class="emp-bar-client" style="width:80%"></div><div class="emp-bar-internal" style="width:20%"></div></div><div class="emp-pct">100%</div></div>
+        <div class="emp-row"><div class="emp-name">Sarah M.</div><div class="emp-bar-wrap"><div class="emp-bar-client" style="width:100%"></div></div><div class="emp-pct">100%</div></div>
+        <div class="emp-row"><div class="emp-name">James L.</div><div class="emp-bar-wrap"><div class="emp-bar-internal" style="width:40%"></div></div><div class="emp-pct">40%</div><span class="emp-alert alert-under">UNDER</span></div>
+        <div class="emp-row"><div class="emp-name">Tom R.</div><div class="emp-bar-wrap"><div class="emp-bar-client" style="width:70%"></div><div class="emp-bar-internal" style="width:50%"></div></div><div class="emp-pct">120%</div><span class="emp-alert alert-over">OVER</span></div>
+        <div style="margin-top:14px;">
+          <div class="two-col">
+            <div class="mini-list">
+              <div class="mini-list-header">Client Projects</div>
+              <div class="mini-list-row">Project Alpha <span class="mini-badge mb-client">5 people</span></div>
+              <div class="mini-list-row">Project Beta <span class="mini-badge mb-client">3 people</span></div>
+              <div class="mini-list-row">Project Gamma <span class="mini-badge mb-client">7 people</span></div>
+            </div>
+            <div class="mini-list">
+              <div class="mini-list-header">Internal Projects</div>
+              <div class="mini-list-row">CRM Tool <span class="mini-badge mb-pct">45%</span></div>
+              <div class="mini-list-row">Mobile App <span class="mini-badge mb-pct">20%</span></div>
+              <div class="mini-list-row">Dev Portal <span class="mini-badge mb-pct">68%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h4>Admin Dashboard — Data Points</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Widget</th><th>Data</th><th>Alert Condition</th></tr></thead>
+        <tbody>
+          <tr><td>Capacity summary</td><td>Total headcount, on-client count, internal-only count, avg utilization %</td><td>Utilization &lt; 60% or &gt; 95% company-wide</td></tr>
+          <tr><td>Per-employee bar</td><td>Name, client engagement % (teal), internal engagement % (purple), total %, over/under badge</td><td>Total &gt; 100% → OVER badge; &lt; 50% → UNDER badge</td></tr>
+          <tr><td>Client projects list</td><td>Project name, client name, headcount, engagement range</td><td>Project end date within 14 days</td></tr>
+          <tr><td>Internal projects list</td><td>Project name, % complete, overdue task count, deadline</td><td>Overdue tasks &gt; 0 or deadline within 7 days</td></tr>
+          <tr><td>Unassigned employees</td><td>Employees with 0% active engagement</td><td>Always surfaced — available capacity</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PM DASHBOARD -->
+    <h3>PM Dashboard — Project Health View</h3>
+    <p>A PM sees only their own projects. CLIENT and INTERNAL projects show different detail.</p>
+
+    <div class="dash-mock">
+      <div class="dash-mock-header">
+        <span class="dash-mock-title">Project Manager Dashboard</span>
+        <span class="dash-mock-role role-pm">PM</span>
+      </div>
+      <div class="dash-mock-body">
+        <div class="stat-row">
+          <div class="stat-card"><div class="stat-val">2</div><div class="stat-label">Active projects</div></div>
+          <div class="stat-card warn"><div class="stat-val">3</div><div class="stat-label">Overdue tasks</div></div>
+          <div class="stat-card ok"><div class="stat-val">62%</div><div class="stat-label">Overall progress</div></div>
+        </div>
+        <div class="two-col">
+          <div class="mini-list">
+            <div class="mini-list-header">Client Projects</div>
+            <div class="mini-list-row">Project Alpha — 5 people engaged<span class="mini-badge mb-client">CLIENT</span></div>
+            <div class="mini-list-row" style="flex-direction:column; align-items:flex-start; gap:4px;">
+              <div style="font-size:11px; color:var(--text3);">Dev K. 80% · Sarah 100% · Tom 70%</div>
+            </div>
+          </div>
+          <div class="mini-list">
+            <div class="mini-list-header">Internal Projects</div>
+            <div class="mini-list-row">CRM Tool<span class="mini-badge mb-pct">45% done</span></div>
+            <div class="mini-list-row" style="color:var(--red); font-size:11px;">3 tasks overdue · deadline in 18d</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEMBER DASHBOARD -->
+    <h3>Member Dashboard — My Workload</h3>
+    <p>Members see their complete picture: client commitments + internal tasks — one unified view of all obligations.</p>
+
+    <div class="dash-mock">
+      <div class="dash-mock-header">
+        <span class="dash-mock-title">My Dashboard</span>
+        <span class="dash-mock-role role-member">MEMBER</span>
+      </div>
+      <div class="dash-mock-body">
+        <div class="stat-row">
+          <div class="stat-card"><div class="stat-val">100%</div><div class="stat-label">Total engagement</div></div>
+          <div class="stat-card ok"><div class="stat-val">80%</div><div class="stat-label">Client work</div></div>
+          <div class="stat-card"><div class="stat-val">20%</div><div class="stat-label">Internal work</div></div>
+          <div class="stat-card warn"><div class="stat-val">1</div><div class="stat-label">Overdue task</div></div>
+        </div>
+        <div class="two-col">
+          <div class="mini-list">
+            <div class="mini-list-header">My Engagements</div>
+            <div class="mini-list-row">Project Alpha<span class="mini-badge mb-client">80% CLIENT</span></div>
+            <div class="mini-list-row">CRM Tool<span class="mini-badge mb-internal">20% INTERNAL</span></div>
+          </div>
+          <div class="mini-list">
+            <div class="mini-list-header">My Tasks (Internal)</div>
+            <div class="mini-list-row">Build auth module<span class="mini-badge mb-pct">In Progress</span></div>
+            <div class="mini-list-row" style="color:var(--red);">API rate limiting — overdue!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout note">
+      <div class="callout-icon">→</div>
+      <div class="callout-body"><strong>Key design rule:</strong> A member assigned to a CLIENT project sees that engagement in their "My Engagements" panel — but sees no tasks for it (there are none). They do see tasks from INTERNAL projects they are members of.</div>
+    </div>
+  </section>
+
+  <!-- 8. USER STORIES -->
+  <section id="stories">
+    <h2><span class="sec-label">§8</span> User Stories <span class="badge-upd">UPDATED</span></h2>
+    <p class="section-lead">Key stories covering the new client model and dashboard requirements.</p>
+
+    <h3>Admin — Company Capacity</h3>
+    <div class="story-card new-story">
+      <div class="story-id">US-ADMIN-01 · NEW</div>
+      <div class="story-text">As an Admin, I want to see every employee's engagement breakdown (client vs internal) on one screen so I can assess company capacity without asking anyone.</div>
+      <ul class="story-ac">
+        <li>Each employee shows a stacked bar: client engagement (teal) + internal engagement (purple) = total %.</li>
+        <li>Employees over 100% total show an OVER badge in red; under 50% show an UNDER badge in amber.</li>
+        <li>I can click any employee bar to see their individual project breakdown.</li>
+        <li>Data reflects the current state — no manual refresh required.</li>
+      </ul>
+      <div class="story-meta"><span class="pill pill-must">MUST</span><span class="pill pill-new">NEW</span></div>
+    </div>
+    <div class="story-card new-story">
+      <div class="story-id">US-ADMIN-02 · NEW</div>
+      <div class="story-text">As an Admin, I want to see which employees are working on paid client projects vs internal projects so I can understand billable vs non-billable resource distribution.</div>
+      <ul class="story-ac">
+        <li>Dashboard shows a summary: X employees on client work, Y on internal only, Z unassigned.</li>
+        <li>Client project list shows project name, client name, and the number of engaged employees.</li>
+        <li>I can filter the employee list by "Client only", "Internal only", "Mixed", or "Unassigned".</li>
+      </ul>
+      <div class="story-meta"><span class="pill pill-must">MUST</span><span class="pill pill-new">NEW</span></div>
+    </div>
+
+    <h3>Client Projects</h3>
+    <div class="story-card new-story">
+      <div class="story-id">US-CLIENT-01 · NEW</div>
+      <div class="story-text">As a PM, I want to create a CLIENT project linked to a client record so the system knows this engagement is for a paying client.</div>
+      <ul class="story-ac">
+        <li>Project creation form shows a "Category" toggle: CLIENT or INTERNAL.</li>
+        <li>Selecting CLIENT reveals a "Client" dropdown populated from the Client list.</li>
+        <li>Created project appears with a CLIENT badge in all project lists.</li>
+        <li>Task creation is hidden on CLIENT projects by default.</li>
+      </ul>
+      <div class="story-meta"><span class="pill pill-must">MUST</span><span class="pill pill-new">NEW</span></div>
+    </div>
+    <div class="story-card new-story">
+      <div class="story-id">US-CLIENT-02 · NEW</div>
+      <div class="story-text">As a PM, I want to assign employees to a CLIENT project with an engagement percentage so I can record who is committed and at what level.</div>
+      <ul class="story-ac">
+        <li>Assignment dialog for CLIENT projects shows "Engagement %" — no task selection.</li>
+        <li>The dialog shows the employee's current total engagement before and after the assignment.</li>
+        <li>Employees over 100% total after assignment show a warning; PM can still proceed (soft block in P1).</li>
+        <li>Assignment appears on Admin dashboard immediately.</li>
+      </ul>
+      <div class="story-meta"><span class="pill pill-must">MUST</span><span class="pill pill-new">NEW</span></div>
+    </div>
+
+    <h3>Mixed Engagement</h3>
+    <div class="story-card new-story">
+      <div class="story-id">US-ENG-01 · NEW</div>
+      <div class="story-text">As a team member engaged 80% on a client project, I want to also be assigned to an internal project at 20% and see my total engagement clearly on my dashboard.</div>
+      <ul class="story-ac">
+        <li>My dashboard shows total engagement = 100%, split: 80% Client / 20% Internal.</li>
+        <li>The internal project's tasks appear in my task list; the client project shows only an engagement record.</li>
+        <li>If a PM tries to assign me an additional project, they see my current 100% total and a warning.</li>
+      </ul>
+      <div class="story-meta"><span class="pill pill-must">MUST</span><span class="pill pill-new">NEW</span></div>
+    </div>
+
+    <h3>Core (Retained from v1.0)</h3>
+    <div class="story-card">
+      <div class="story-id">US-TASK-02</div>
+      <div class="story-text">As a team member, I want to update the progress percentage and status of my assigned internal task.</div>
+      <ul class="story-ac">
+        <li>Only assignees, task creator, or a PM can update progress.</li>
+        <li>Progress slider: 0–100% in 5% increments.</li>
+        <li>Setting to 100% suggests (not forces) moving to "In Review".</li>
+        <li>Status change is logged with timestamp and actor name.</li>
+      </ul>
+      <div class="story-meta"><span class="pill pill-must">MUST</span></div>
+    </div>
+    <div class="story-card">
+      <div class="story-id">US-TASK-03</div>
+      <div class="story-text">As a PM, I want to see all overdue tasks across my internal projects in one view.</div>
+      <ul class="story-ac">
+        <li>A task is overdue when due date has passed and status is not Done or Archived.</li>
+        <li>Dashboard shows overdue count badge; clicking opens a filtered task list.</li>
+        <li>Overdue tasks show a red indicator in all task lists.</li>
+      </ul>
+      <div class="story-meta"><span class="pill pill-must">MUST</span></div>
+    </div>
+  </section>
+
+  <!-- 9. NFR -->
+  <section id="nfr">
+    <h2><span class="sec-label">§9</span> Non-Functional Requirements</h2>
+    <p class="section-lead">Measurable quality attributes. Unchanged from v1.0.</p>
+    <div class="table-wrap">
+      <table class="nfr-row">
+        <thead><tr><th>ID</th><th>Category</th><th>Target</th><th>Rationale</th></tr></thead>
+        <tbody>
+          <tr><td>NFR-01</td><td><strong>Performance</strong></td><td>API P95 &lt; 200 ms</td><td>Dashboard must feel instant; Admin capacity view aggregates across all employees</td></tr>
+          <tr><td>NFR-02</td><td><strong>Availability</strong></td><td>99.5% uptime (dev/staging)</td><td>Production SLA defined in P2</td></tr>
+          <tr><td>NFR-03</td><td><strong>Security</strong></td><td>OWASP Top 10 compliance</td><td>Handles PII and commercially sensitive client/engagement data</td></tr>
+          <tr><td>NFR-04</td><td><strong>Security</strong></td><td>JWT httpOnly cookie, CSRF protection</td><td>XSS-resistant token storage</td></tr>
+          <tr><td>NFR-05</td><td><strong>Scalability</strong></td><td>200 concurrent users, P1</td><td>Small teams; horizontal scale deferred to P2</td></tr>
+          <tr><td>NFR-06</td><td><strong>Portability</strong></td><td><code>docker compose up</code> — one command</td><td>Any dev machine, zero local dependency installs</td></tr>
+          <tr><td>NFR-07</td><td><strong>Maintainability</strong></td><td>Test coverage ≥ 70% service layer</td><td>Safe refactoring as P2 features are added</td></tr>
+          <tr><td>NFR-08</td><td><strong>Accessibility</strong></td><td>WCAG 2.1 AA</td><td>Keyboard navigation, screen reader support for all dashboards</td></tr>
+          <tr><td>NFR-09</td><td><strong>Data Integrity</strong></td><td>Prisma versioned migrations</td><td>Reproducible schema; no raw SQL drift</td></tr>
+          <tr><td>NFR-10</td><td><strong>Observability</strong></td><td>Structured JSON logs + <code>/health</code> endpoint</td><td>Docker-friendly aggregation, liveness probe</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 10. DATA MODEL -->
+  <section id="datamodel">
+    <h2><span class="sec-label">§10</span> Data Model <span class="badge-upd">UPDATED</span></h2>
+    <p class="section-lead">9 entities. New: <code>Client</code>, <code>ProjectEngagement</code>. Updated: <code>Project</code> (category + client_id). Green fields = added in v1.1.</p>
+
+    <div class="entity-grid">
+      <div class="entity-card">
+        <div class="entity-header"><div class="entity-dot" style="background:#3b82f6"></div><div class="entity-name">User</div></div>
+        <ul class="entity-fields">
+          <li class="pk"><span class="fname">id</span><span class="ftype">UUID PK</span></li>
+          <li><span class="fname">email</span><span class="ftype">string unique</span></li>
+          <li><span class="fname">name</span><span class="ftype">string</span></li>
+          <li><span class="fname">password_hash</span><span class="ftype">string</span></li>
+          <li><span class="fname">role</span><span class="ftype">enum</span></li>
+          <li><span class="fname">avatar_url</span><span class="ftype">string?</span></li>
+          <li><span class="fname">is_active</span><span class="ftype">bool</span></li>
+          <li><span class="fname">created_at</span><span class="ftype">timestamp</span></li>
+        </ul>
+      </div>
+
+      <div class="entity-card new-entity">
+        <div class="entity-header"><div class="entity-dot" style="background:#0891b2"></div><div class="entity-name">Client</div><span class="entity-badge eb-new">NEW</span></div>
+        <ul class="entity-fields">
+          <li class="pk"><span class="fname">id</span><span class="ftype">UUID PK</span></li>
+          <li><span class="fname">name</span><span class="ftype">string unique</span></li>
+          <li><span class="fname">contact_person</span><span class="ftype">string?</span></li>
+          <li><span class="fname">email</span><span class="ftype">string?</span></li>
+          <li><span class="fname">phone</span><span class="ftype">string?</span></li>
+          <li><span class="fname">notes</span><span class="ftype">text?</span></li>
+          <li><span class="fname">is_active</span><span class="ftype">bool</span></li>
+          <li><span class="fname">created_at</span><span class="ftype">timestamp</span></li>
+        </ul>
+      </div>
+
+      <div class="entity-card upd-entity">
+        <div class="entity-header"><div class="entity-dot" style="background:#059669"></div><div class="entity-name">Project</div><span class="entity-badge eb-upd">UPD</span></div>
+        <ul class="entity-fields">
+          <li class="pk"><span class="fname">id</span><span class="ftype">UUID PK</span></li>
+          <li><span class="fname">name</span><span class="ftype">string</span></li>
+          <li><span class="fname">description</span><span class="ftype">text?</span></li>
+          <li class="new-field"><span class="fname">category</span><span class="ftype">enum NEW</span></li>
+          <li class="new-field fk"><span class="fname">client_id</span><span class="ftype">Client FK? NEW</span></li>
+          <li class="new-field"><span class="fname">tasks_enabled</span><span class="ftype">bool NEW</span></li>
+          <li><span class="fname">status</span><span class="ftype">enum</span></li>
+          <li><span class="fname">priority</span><span class="ftype">enum</span></li>
+          <li><span class="fname">start_date</span><span class="ftype">date?</span></li>
+          <li><span class="fname">end_date</span><span class="ftype">date?</span></li>
+          <li class="fk"><span class="fname">owner_id</span><span class="ftype">User FK</span></li>
+          <li class="fk"><span class="fname">team_id</span><span class="ftype">Team FK?</span></li>
+        </ul>
+      </div>
+
+      <div class="entity-card new-entity">
+        <div class="entity-header"><div class="entity-dot" style="background:#7c3aed"></div><div class="entity-name">ProjectEngagement</div><span class="entity-badge eb-new">NEW</span></div>
+        <ul class="entity-fields">
+          <li class="fk pk"><span class="fname">project_id</span><span class="ftype">Project FK</span></li>
+          <li class="fk pk"><span class="fname">user_id</span><span class="ftype">User FK</span></li>
+          <li><span class="fname">engagement_pct</span><span class="ftype">int 0–100</span></li>
+          <li><span class="fname">is_billable</span><span class="ftype">bool</span></li>
+          <li class="fk"><span class="fname">assigned_by</span><span class="ftype">User FK</span></li>
+          <li><span class="fname">assigned_at</span><span class="ftype">timestamp</span></li>
+          <li><span class="fname">notes</span><span class="ftype">string?</span></li>
+        </ul>
+      </div>
+
+      <div class="entity-card">
+        <div class="entity-header"><div class="entity-dot" style="background:#8b5cf6"></div><div class="entity-name">Team</div></div>
+        <ul class="entity-fields">
+          <li class="pk"><span class="fname">id</span><span class="ftype">UUID PK</span></li>
+          <li><span class="fname">name</span><span class="ftype">string</span></li>
+          <li><span class="fname">description</span><span class="ftype">string?</span></li>
+          <li class="fk"><span class="fname">created_by</span><span class="ftype">User FK</span></li>
+          <li><span class="fname">created_at</span><span class="ftype">timestamp</span></li>
+        </ul>
+      </div>
+
+      <div class="entity-card">
+        <div class="entity-header"><div class="entity-dot" style="background:#dc2626"></div><div class="entity-name">Task</div></div>
+        <ul class="entity-fields">
+          <li class="pk"><span class="fname">id</span><span class="ftype">UUID PK</span></li>
+          <li><span class="fname">title</span><span class="ftype">string</span></li>
+          <li><span class="fname">description</span><span class="ftype">text?</span></li>
+          <li><span class="fname">status</span><span class="ftype">enum</span></li>
+          <li><span class="fname">priority</span><span class="ftype">enum</span></li>
+          <li><span class="fname">progress_pct</span><span class="ftype">int 0–100</span></li>
+          <li><span class="fname">due_date</span><span class="ftype">date?</span></li>
+          <li class="fk"><span class="fname">project_id</span><span class="ftype">Project FK</span></li>
+          <li class="fk"><span class="fname">parent_task_id</span><span class="ftype">Task FK?</span></li>
+          <li class="fk"><span class="fname">created_by</span><span class="ftype">User FK</span></li>
+        </ul>
+      </div>
+
+      <div class="entity-card">
+        <div class="entity-header"><div class="entity-dot" style="background:#0891b2"></div><div class="entity-name">TaskAssignment</div></div>
+        <ul class="entity-fields">
+          <li class="fk pk"><span class="fname">task_id</span><span class="ftype">Task FK</span></li>
+          <li class="fk pk"><span class="fname">user_id</span><span class="ftype">User FK</span></li>
+          <li><span class="fname">engagement_pct</span><span class="ftype">int 0–100</span></li>
+          <li><span class="fname">assigned_at</span><span class="ftype">timestamp</span></li>
+          <li class="fk"><span class="fname">assigned_by</span><span class="ftype">User FK</span></li>
+        </ul>
+      </div>
+
+      <div class="entity-card">
+        <div class="entity-header"><div class="entity-dot" style="background:#6b7280"></div><div class="entity-name">AuditLog</div></div>
+        <ul class="entity-fields">
+          <li class="pk"><span class="fname">id</span><span class="ftype">UUID PK</span></li>
+          <li class="fk"><span class="fname">actor_id</span><span class="ftype">User FK</span></li>
+          <li><span class="fname">entity_type</span><span class="ftype">string</span></li>
+          <li><span class="fname">entity_id</span><span class="ftype">UUID</span></li>
+          <li><span class="fname">action</span><span class="ftype">enum</span></li>
+          <li><span class="fname">diff</span><span class="ftype">json?</span></li>
+          <li><span class="fname">created_at</span><span class="ftype">timestamp</span></li>
+        </ul>
+      </div>
+
+      <div class="entity-card">
+        <div class="entity-header"><div class="entity-dot" style="background:#db2777"></div><div class="entity-name">Notification</div></div>
+        <ul class="entity-fields">
+          <li class="pk"><span class="fname">id</span><span class="ftype">UUID PK</span></li>
+          <li class="fk"><span class="fname">user_id</span><span class="ftype">User FK</span></li>
+          <li><span class="fname">type</span><span class="ftype">enum</span></li>
+          <li><span class="fname">message</span><span class="ftype">string</span></li>
+          <li><span class="fname">entity_type</span><span class="ftype">string</span></li>
+          <li><span class="fname">entity_id</span><span class="ftype">UUID</span></li>
+          <li><span class="fname">is_read</span><span class="ftype">bool</span></li>
+          <li><span class="fname">created_at</span><span class="ftype">timestamp</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout note">
+      <div class="callout-icon">→</div>
+      <div class="callout-body">
+        <strong>Key relationships (v1.1):</strong> Client → many Projects (CLIENT category). Project → many ProjectEngagements (both types). Project → many Tasks (INTERNAL only, when tasks_enabled=true). ProjectEngagement and TaskAssignment are separate — the former tracks project-level commitment, the latter tracks which specific tasks a person is responsible for within an internal project.
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. TECH STACK -->
+  <section id="tech">
+    <h2><span class="sec-label">§11</span> Tech Stack</h2>
+    <p class="section-lead">Unchanged from v1.0.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Layer</th><th>Technology</th><th>Rationale</th></tr></thead>
+        <tbody>
+          <tr><td>Frontend</td><td><strong>React 18 + TypeScript + Vite + Tailwind CSS</strong></td><td>Typed component model, fast HMR, utility-first styling</td></tr>
+          <tr><td>State Mgmt</td><td><strong>React Query (TanStack) + Zustand</strong></td><td>Server-state cache; minimal global UI state</td></tr>
+          <tr><td>Backend</td><td><strong>Node.js 20 + Express + TypeScript</strong></td><td>JS full-stack; typed routes via Zod</td></tr>
+          <tr><td>ORM / Schema</td><td><strong>Prisma 5</strong></td><td>Type-safe queries, versioned migrations</td></tr>
+          <tr><td>Database</td><td><strong>PostgreSQL 16</strong></td><td>Normalized relational model for project/engagement/task hierarchy</td></tr>
+          <tr><td>Cache</td><td><strong>Redis 7</strong></td><td>Refresh tokens, rate-limit counters, engagement aggregation cache</td></tr>
+          <tr><td>Auth</td><td><strong>JWT (access) + httpOnly cookie (refresh)</strong></td><td>XSS-safe storage</td></tr>
+          <tr><td>Containers</td><td><strong>Docker + Docker Compose v2</strong></td><td>One-command environment</td></tr>
+          <tr><td>Proxy</td><td><strong>Nginx Alpine</strong></td><td>Static files, /api proxy, CORS boundary</td></tr>
+          <tr><td>Testing</td><td><strong>Vitest (FE) + Jest + Supertest (BE)</strong></td><td>Fast unit + integration tests against real DB</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 12. API CONTRACTS -->
+  <section id="api">
+    <h2><span class="sec-label">§12</span> API Contracts <span class="badge-upd">UPDATED</span></h2>
+    <p class="section-lead">REST API. Base: <code>/api/v1</code>. New endpoints in v1.1 highlighted.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Method</th><th>Endpoint</th><th>Auth</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>POST</td><td><code>/auth/register</code></td><td>Public</td><td>Create account.</td></tr>
+          <tr><td>POST</td><td><code>/auth/login</code></td><td>Public</td><td>Returns JWT + sets refresh cookie.</td></tr>
+          <tr><td>POST</td><td><code>/auth/refresh</code></td><td>Cookie</td><td>Issue new access token.</td></tr>
+          <tr><td>POST</td><td><code>/auth/logout</code></td><td>JWT</td><td>Invalidates refresh token.</td></tr>
+          <tr class="row-new"><td>GET</td><td><code>/clients</code></td><td>Admin/PM</td><td>List clients. Admin sees all; PM sees own.</td></tr>
+          <tr class="row-new"><td>POST</td><td><code>/clients</code></td><td>Admin/PM</td><td>Create client. Body: name, contact_person, email, phone, notes.</td></tr>
+          <tr class="row-new"><td>GET</td><td><code>/clients/:id</code></td><td>Admin/PM</td><td>Client detail + linked projects + engaged headcount.</td></tr>
+          <tr><td>GET</td><td><code>/projects</code></td><td>JWT</td><td>Projects caller is member of. Query: <code>?category=CLIENT|INTERNAL</code>.</td></tr>
+          <tr><td>POST</td><td><code>/projects</code></td><td>PM/Admin</td><td>Create project. Body: name, category, client_id (if CLIENT), priority, dates.</td></tr>
+          <tr><td>GET</td><td><code>/projects/:id</code></td><td>Member</td><td>Project detail + engagement roster + (if INTERNAL) task counts.</td></tr>
+          <tr class="row-new"><td>GET</td><td><code>/projects/:id/engagements</code></td><td>PM/Admin</td><td>All ProjectEngagement records for this project.</td></tr>
+          <tr class="row-new"><td>POST</td><td><code>/projects/:id/engagements</code></td><td>PM/Admin</td><td>Assign employee. Body: <code>{user_id, engagement_pct, is_billable}</code>.</td></tr>
+          <tr class="row-new"><td>PATCH</td><td><code>/projects/:id/engagements/:userId</code></td><td>PM/Admin</td><td>Update engagement %. Returns updated total for that user.</td></tr>
+          <tr><td>GET</td><td><code>/projects/:id/tasks</code></td><td>Member</td><td>Tasks for INTERNAL project. 403 if CLIENT and tasks_enabled=false.</td></tr>
+          <tr><td>POST</td><td><code>/projects/:id/tasks</code></td><td>PM/Member</td><td>Create task (INTERNAL only).</td></tr>
+          <tr><td>PATCH</td><td><code>/tasks/:id</code></td><td>Assignee/PM</td><td>Update status, progress_pct, due_date, priority.</td></tr>
+          <tr><td>POST</td><td><code>/tasks/:id/assign</code></td><td>PM</td><td>Assign users to task. Body: <code>[{user_id, engagement_pct}]</code>.</td></tr>
+          <tr class="row-new"><td>GET</td><td><code>/dashboard/admin</code></td><td>Admin</td><td>Company capacity: all employees + engagement breakdown, project summaries.</td></tr>
+          <tr class="row-upd"><td>GET</td><td><code>/dashboard</code></td><td>JWT</td><td>Role-aware: returns Admin/PM/Member view based on caller's role.</td></tr>
+          <tr class="row-new"><td>GET</td><td><code>/users/:id/engagement</code></td><td>Admin/PM</td><td>Total engagement for a user + breakdown by project.</td></tr>
+          <tr><td>GET</td><td><code>/notifications</code></td><td>JWT</td><td>Unread notifications. Supports <code>?mark_read=true</code>.</td></tr>
+          <tr><td>GET</td><td><code>/audit/:entity_type/:id</code></td><td>PM/Admin</td><td>Audit trail for an entity.</td></tr>
+          <tr><td>GET</td><td><code>/health</code></td><td>Public</td><td><code>{"status":"ok","db":"ok","redis":"ok"}</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 13. DOCKER -->
+  <section id="docker">
+    <h2><span class="sec-label">§13</span> Docker Compose Design</h2>
+    <p class="section-lead">Five containers, one network. Unchanged from v1.0.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Service</th><th>Image</th><th>Port (host)</th><th>Depends On</th></tr></thead>
+        <tbody>
+          <tr><td><code>nginx</code></td><td>nginx:alpine</td><td>80 → 80</td><td>frontend, backend</td></tr>
+          <tr><td><code>frontend</code></td><td>node:20-alpine (build)</td><td>internal 5173</td><td>—</td></tr>
+          <tr><td><code>backend</code></td><td>node:20-alpine</td><td>internal 3000</td><td>postgres, redis</td></tr>
+          <tr><td><code>postgres</code></td><td>postgres:16-alpine</td><td>5432 (dev only)</td><td>—</td></tr>
+          <tr><td><code>redis</code></td><td>redis:7-alpine</td><td>6379 (dev only)</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 14. MILESTONES -->
+  <section id="timeline">
+    <h2><span class="sec-label">§14</span> Milestones <span class="badge-upd">UPDATED</span></h2>
+    <p class="section-lead">M1 now includes Client entity. M3 includes Admin capacity dashboard.</p>
+    <div>
+      <div class="phase-row">
+        <div class="phase-label"><div class="ph-name">M1 — Foundation</div><div class="ph-weeks">Weeks 1–2</div></div>
+        <div class="phase-content"><ul>
+          <li>Monorepo + Docker Compose skeleton</li>
+          <li>PostgreSQL schema (Prisma) — all 9 entities including Client + ProjectEngagement</li>
+          <li>Auth endpoints + JWT middleware + RBAC guard</li>
+          <li>Client CRUD API + frontend scaffold</li>
+          <li>Login / register pages</li>
+        </ul></div>
+      </div>
+      <div class="phase-row">
+        <div class="phase-label"><div class="ph-name">M2 — Core CRUD</div><div class="ph-weeks">Weeks 3–4</div></div>
+        <div class="phase-content"><ul>
+          <li>User + Team management API + UI</li>
+          <li>Project CRUD with CLIENT/INTERNAL category + client linking</li>
+          <li>ProjectEngagement — assign employees with %, engagement total computation</li>
+          <li>Task CRUD + subtasks (INTERNAL projects only)</li>
+          <li>Task assignment + status workflow</li>
+        </ul></div>
+      </div>
+      <div class="phase-row">
+        <div class="phase-label"><div class="ph-name">M3 — Dashboards</div><div class="ph-weeks">Weeks 5–6</div></div>
+        <div class="phase-content"><ul>
+          <li>Admin dashboard — company capacity, per-employee engagement bars, over/under allocation</li>
+          <li>PM dashboard — project health, CLIENT engagement view, INTERNAL task progress</li>
+          <li>Member dashboard — my engagements + my tasks unified</li>
+          <li>Audit log + activity feed</li>
+          <li>In-app notifications + search/filter</li>
+        </ul></div>
+      </div>
+      <div class="phase-row">
+        <div class="phase-label"><div class="ph-name">M4 — Hardening</div><div class="ph-weeks">Weeks 7–8</div></div>
+        <div class="phase-content"><ul>
+          <li>Unit + integration tests ≥ 70% service coverage</li>
+          <li>E2E smoke tests (Playwright) for all dashboard golden paths</li>
+          <li>Security pass: rate limiting, input sanitization, CORS</li>
+          <li>OpenAPI / Swagger spec</li>
+          <li>GitHub Actions CI (lint → test → build → docker push)</li>
+        </ul></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15. RISKS -->
+  <section id="risks">
+    <h2><span class="sec-label">§15</span> Risks</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Risk</th><th>Impact</th><th>Mitigation</th></tr></thead>
+        <tbody>
+          <tr class="risk-hi"><td>R-01</td><td><strong>Scope creep into P2</strong> during M2–M3</td><td>High</td><td>Strict out-of-scope list; PM sign-off required for any scope change</td></tr>
+          <tr class="risk-hi"><td>R-02</td><td><strong>JWT refresh token not invalidated on logout</strong></td><td>High</td><td>Store refresh token hash in Redis; purge on logout; automated security test</td></tr>
+          <tr class="risk-med"><td>R-03</td><td><strong>Engagement % ambiguity</strong> — teams disagree on what 100% means across CLIENT + INTERNAL split</td><td>Med</td><td>Defined clearly in §5; advisory-only in P1, hard cap in P2</td></tr>
+          <tr class="risk-med"><td>R-04</td><td><strong>Admin dashboard performance</strong> — aggregating engagement across all users could be slow</td><td>Med</td><td>Pre-aggregate engagement totals in Redis on write; invalidate on ProjectEngagement change</td></tr>
+          <tr class="risk-lo"><td>R-05</td><td><strong>Docker volume data loss</strong> during dev resets</td><td>Low</td><td>Named volumes; seed script for fast test data restore</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 16. ACCEPTANCE CRITERIA -->
+  <section id="acceptance">
+    <h2><span class="sec-label">§16</span> Acceptance Criteria <span class="badge-upd">UPDATED</span></h2>
+    <p class="section-lead">All must pass for Phase 1 sign-off.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>AC</th><th>Criterion</th><th>Verified By</th></tr></thead>
+        <tbody>
+          <tr><td>AC-01</td><td><code>docker compose up</code> starts all 5 services cleanly on a fresh machine</td><td>Demo on clean VM</td></tr>
+          <tr><td>AC-02</td><td>Admin can see every employee's engagement breakdown (client vs internal %) on the company dashboard</td><td>Manual walkthrough</td></tr>
+          <tr class="row-new"><td>AC-03</td><td>Admin dashboard correctly flags employees over 100% total engagement with an OVER badge and under 50% with an UNDER badge</td><td>Automated + manual</td></tr>
+          <tr class="row-new"><td>AC-04</td><td>A CLIENT project can be created, employees assigned with engagement %, and the result appears on the Admin dashboard — no task creation required</td><td>Manual walkthrough</td></tr>
+          <tr class="row-new"><td>AC-05</td><td>An employee assigned 80% to a CLIENT project and 20% to an INTERNAL project sees both in their Member dashboard with a 100% total</td><td>Manual test</td></tr>
+          <tr><td>AC-06</td><td>A PM can create an INTERNAL project, assign tasks, and team members can update status/progress — PM sees changes on dashboard within 30s</td><td>Manual test</td></tr>
+          <tr><td>AC-07</td><td>Overdue tasks appear with red indicators and in the overdue count badge</td><td>Automated + manual</td></tr>
+          <tr><td>AC-08</td><td>A Member cannot call Admin-only or PM-only API endpoints — returns 403</td><td>Automated API test</td></tr>
+          <tr><td>AC-09</td><td>All API endpoints return correct status codes and response shapes per §12</td><td>Postman / Supertest</td></tr>
+          <tr><td>AC-10</td><td>Service layer test coverage ≥ 70%</td><td>CI coverage report</td></tr>
+          <tr><td>AC-11</td><td>Logout invalidates refresh token; re-submitting the cookie returns 401</td><td>Automated API test</td></tr>
+          <tr><td>AC-12</td><td>GitHub repo contains: README, <code>.env.example</code>, <code>docker-compose.yml</code>, CI workflow</td><td>Repo review</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout added" style="margin-top:28px;">
+      <div class="callout-icon">→</div>
+      <div class="callout-body"><strong>Next step:</strong> PRD v1.1 signed off. Begin M1 implementation — Prisma schema (9 entities) is the first deliverable, followed by the Docker Compose skeleton and auth layer.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + entry.target.id);
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>

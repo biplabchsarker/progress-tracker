@@ -1,0 +1,26 @@
+version: "3.9"
+
+# Dev overrides: hot reload, exposed ports for direct DB/Redis access
+
+services:
+  backend:
+    volumes:
+      - ./backend/src:/app/src
+    command: npm run dev
+    ports:
+      - "3000:3000"
+
+  frontend:
+    volumes:
+      - ./frontend/src:/app/src
+    command: npm run dev -- --host
+    ports:
+      - "5173:5173"
+
+  postgres:
+    ports:
+      - "5432:5432"
+
+  redis:
+    ports:
+      - "6379:6379"
