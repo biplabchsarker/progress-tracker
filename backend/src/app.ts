@@ -6,6 +6,9 @@ import rateLimit from 'express-rate-limit';
 import { env } from './config/env';
 import { errorHandler } from './middleware/errorHandler';
 import authRoutes from './modules/auth/auth.routes';
+import clientsRoutes from './modules/clients/clients.routes';
+import usersRoutes from './modules/users/users.routes';
+import teamsRoutes from './modules/teams/teams.routes';
 
 const app = express();
 
@@ -48,6 +51,9 @@ app.get('/health', (_req, res) => {
 
 // API routes
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/clients', clientsRoutes);
+app.use('/api/v1/users', usersRoutes);
+app.use('/api/v1/teams', teamsRoutes);
 
 // 404 for unmatched routes
 app.use((_req, res) => {
