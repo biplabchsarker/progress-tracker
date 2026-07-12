@@ -78,6 +78,26 @@ describe('tasks.service', () => {
     expect(updated.status).toBe('IN_PROGRESS');
   });
 
+  it('revokes a former creator\'s update rights once they are removed from the project, but keeps a live assignee\'s rights even with no separate engagement', async () => {
+    const project = await projectsService.create(pm, { name: 'Test Task Offboarding', category: 'INTERNAL' });
+    await projectsService.addEngagement(project.id, { userId: outsider.sub, engagementPct: 20 }, pm.sub);
+    const task = await tasksService.create(outsider, project.id, { title: 'Created by soon-to-be-offboarded user' });
+
+    // Still engaged: the creator can update their own task.
+    await expect(tasksService.update(outsider, task.id, { status: 'IN_PROGRESS' })).resolves.toMatchObject({ status: 'IN_PROGRESS' });
+
+    // Offboard: remove their project engagement entirely.
+    await projectsService.removeEngagement(project.id, outsider.sub);
+
+    // Stale creator status alone must no longer grant write access.
+    await expect(tasksService.update(outsider, task.id, { progressPct: 50 })).rejects.toThrow(AppError);
+
+    // A live TaskAssignment (no separate ProjectEngagement) still works — assignment
+    // itself is a current, revocable-via-unassign signal, not a stale one.
+    await tasksService.assign(task.id, [{ userId: assignee.sub, engagementPct: 100 }], pm.sub);
+    await expect(tasksService.update(assignee, task.id, { progressPct: 60 })).resolves.toMatchObject({ progressPct: 60 });
+  });
+
   it('lets a member see tasks only on a project they are engaged in', async () => {
     const project = await projectsService.create(pm, { name: 'Test Task Visibility', category: 'INTERNAL' });
     await tasksService.create(pm, project.id, { title: 'Visible task' });

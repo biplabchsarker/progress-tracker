@@ -103,9 +103,14 @@ export async function update(
   if (!task) throw new AppError(404, 'NOT_FOUND', 'Task not found');
 
   const isPrivileged = caller.role === 'ADMIN' || caller.role === 'PM';
-  const isCreator = task.createdById === caller.sub;
+  // A live TaskAssignment is queried fresh above, so it's never stale — an
+  // explicit unassign() immediately revokes it. `createdById`, by contrast,
+  // is permanent and has no revocation path, so a former creator who has
+  // since been removed from the project (engagement/team revoked) must not
+  // retain write access just because the old Task row still names them.
   const isAssignee = task.assignments.some((a) => a.userId === caller.sub);
-  if (!isPrivileged && !isCreator && !isAssignee) {
+  const isCreatorStillOnProject = task.createdById === caller.sub && (await isProjectMember(caller, task.projectId));
+  if (!isPrivileged && !isAssignee && !isCreatorStillOnProject) {
     throw new AppError(403, 'ROLE_INSUFFICIENT', 'Only an assignee, the creator, or a PM can update this task');
   }
 

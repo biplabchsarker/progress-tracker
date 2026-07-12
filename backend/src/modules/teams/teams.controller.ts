@@ -15,9 +15,9 @@ const addMemberSchema = z.object({
   teamRole: z.nativeEnum(TeamRole).default(TeamRole.MEMBER),
 });
 
-export async function list(_req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function list(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const teams = await teamsService.list();
+    const teams = await teamsService.list(req.user!);
     res.json({ teams });
   } catch (err) {
     next(err);
@@ -26,7 +26,7 @@ export async function list(_req: Request, res: Response, next: NextFunction): Pr
 
 export async function getById(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const team = await teamsService.getById(req.params.id);
+    const team = await teamsService.getById(req.user!, req.params.id);
     res.json({ team });
   } catch (err) {
     next(err);

@@ -1,8 +1,11 @@
+import path from 'path';
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
 import { env } from './config/env';
 import { errorHandler } from './middleware/errorHandler';
 import authRoutes from './modules/auth/auth.routes';
@@ -51,6 +54,10 @@ app.use('/api/v1/auth', rateLimit({
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
+
+// API docs — public, read-only reference
+const openapiDocument = YAML.load(path.join(__dirname, '../openapi.yaml'));
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openapiDocument));
 
 // API routes
 app.use('/api/v1/auth', authRoutes);

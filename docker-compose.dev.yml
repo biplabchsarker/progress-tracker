@@ -1,19 +1,21 @@
 # Dev overrides: hot reload, exposed ports for direct DB/Redis access
+#
+# Frontend hot-reload isn't wired up yet — the base compose file has no
+# standalone `frontend` service (nginx's Dockerfile builds the frontend as
+# part of its own multi-stage build, see nginx/Dockerfile). Serving Vite's
+# dev server through nginx vs. exposing it directly is a real design choice,
+# not a one-line fix, so it's left for a follow-up rather than guessed at here.
 
 services:
   backend:
+    build:
+      target: builder
     volumes:
       - ./backend/src:/app/src
+      - ./backend/tests:/app/tests
     command: npm run dev
     ports:
       - "3000:3000"
-
-  frontend:
-    volumes:
-      - ./frontend/src:/app/src
-    command: npm run dev -- --host
-    ports:
-      - "5173:5173"
 
   postgres:
     ports:

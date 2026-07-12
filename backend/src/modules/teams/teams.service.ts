@@ -3,16 +3,22 @@ import { prisma } from '../../config/prisma';
 import { AppError } from '../../middleware/errorHandler';
 import type { JwtPayload } from '../../middleware/auth';
 
-export async function list() {
+function membershipWhere(caller: JwtPayload) {
+  if (caller.role === 'ADMIN' || caller.role === 'PM') return {};
+  return { members: { some: { userId: caller.sub } } };
+}
+
+export async function list(caller: JwtPayload) {
   return prisma.team.findMany({
+    where: membershipWhere(caller),
     include: { _count: { select: { members: true } } },
     orderBy: { name: 'asc' },
   });
 }
 
-export async function getById(id: string) {
-  const team = await prisma.team.findUnique({
-    where: { id },
+export async function getById(caller: JwtPayload, id: string) {
+  const team = await prisma.team.findFirst({
+    where: { id, ...membershipWhere(caller) },
     include: {
       members: {
         include: { user: { select: { id: true, name: true, email: true, role: true } } },

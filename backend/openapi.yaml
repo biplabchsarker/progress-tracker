@@ -1,0 +1,665 @@
+openapi: 3.0.3
+info:
+  title: Task & Project Progress Tracker API
+  version: "1.1"
+  description: |
+    REST API for the Progress Tracker (see docs/PRD-TPT-2026-001.html for the
+    full product spec). Base path: /api/v1. Auth: JWT access token via
+    `Authorization: Bearer <token>` header, obtained from /auth/login and
+    refreshed via an httpOnly refresh-token cookie.
+servers:
+  - url: /api/v1
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Auth
+  - name: Clients
+  - name: Users
+  - name: Teams
+  - name: Projects
+  - name: Tasks
+  - name: Dashboard
+
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Create an account
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, name]
+              properties:
+                email: { type: string, format: email }
+                password:
+                  type: string
+                  description: Min 8 chars, at least one uppercase letter and one number.
+                name: { type: string, minLength: 2, maxLength: 100 }
+      responses:
+        "201":
+          description: Account created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { $ref: "#/components/schemas/User" }
+        "409": { description: Email already taken, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Log in, receive an access token and a refresh-token cookie
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        "200":
+          description: Logged in
+          headers:
+            Set-Cookie: { schema: { type: string }, description: "httpOnly refresh_token cookie" }
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken: { type: string }
+                  user: { $ref: "#/components/schemas/User" }
+        "401": { description: Invalid credentials, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "429": { description: Account locked after 5 failed attempts, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Exchange the refresh-token cookie for a new access token
+      security: []
+      responses:
+        "200":
+          description: New access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken: { type: string }
+        "401": { description: Refresh token missing, invalid, or expired }
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Invalidate the refresh token
+      responses:
+        "204": { description: Logged out }
+
+  /clients:
+    get:
+      tags: [Clients]
+      summary: List clients (Admin sees all; PM sees own)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  clients: { type: array, items: { $ref: "#/components/schemas/Client" } }
+    post:
+      tags: [Clients]
+      summary: Create a client (Admin/PM)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ClientInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { type: object, properties: { client: { $ref: "#/components/schemas/Client" } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /clients/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      tags: [Clients]
+      summary: Client detail with linked projects and engaged headcount
+      responses:
+        "200": { description: OK }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [Clients]
+      summary: Update a client (Admin/PM)
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ClientInput" }
+      responses:
+        "200": { description: Updated }
+    delete:
+      tags: [Clients]
+      summary: Archive a client (Admin only; blocked if active/on-hold projects reference it)
+      responses:
+        "204": { description: Archived }
+        "409": { description: Client has active or on-hold projects }
+
+  /users:
+    get:
+      tags: [Users]
+      summary: List users (Admin/PM)
+      parameters:
+        - { name: role, in: query, schema: { $ref: "#/components/schemas/Role" } }
+        - { name: isActive, in: query, schema: { type: boolean } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { type: object, properties: { users: { type: array, items: { $ref: "#/components/schemas/User" } } } }
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Get your own profile
+      responses:
+        "200": { description: OK }
+    patch:
+      tags: [Users]
+      summary: Update your own name/avatar
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: { name: { type: string }, avatarUrl: { type: string, format: uri } }
+      responses:
+        "200": { description: Updated }
+  /users/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      tags: [Users]
+      summary: Get a user's profile (self, or Admin/PM)
+      responses:
+        "200": { description: OK }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    patch:
+      tags: [Users]
+      summary: Change role/active status (Admin only)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: { role: { $ref: "#/components/schemas/Role" }, isActive: { type: boolean } }
+      responses:
+        "200": { description: Updated }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /users/{id}/engagement:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      tags: [Users]
+      summary: Total active engagement % for a user, broken down by project (Admin/PM)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EngagementTotal" }
+
+  /teams:
+    get:
+      tags: [Teams]
+      summary: List teams (Admin/PM see all; others see teams they belong to)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { type: object, properties: { teams: { type: array, items: { $ref: "#/components/schemas/Team" } } } }
+    post:
+      tags: [Teams]
+      summary: Create a team (Admin/PM)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties: { name: { type: string }, description: { type: string } }
+      responses:
+        "201": { description: Created }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /teams/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      tags: [Teams]
+      summary: Team detail with member roster (scoped to membership, same as list)
+      responses:
+        "200": { description: OK }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [Teams]
+      summary: Update a team (Admin/PM)
+      responses:
+        "200": { description: Updated }
+  /teams/{id}/members:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    post:
+      tags: [Teams]
+      summary: Add a member (Admin/PM)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId]
+              properties: { userId: { type: string, format: uuid }, teamRole: { type: string, enum: [LEAD, MEMBER] } }
+      responses:
+        "201": { description: Added }
+        "409": { description: Already a member }
+  /teams/{id}/members/{userId}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: userId, in: path, required: true, schema: { type: string, format: uuid } }
+    delete:
+      tags: [Teams]
+      summary: Remove a member (Admin/PM)
+      responses:
+        "204": { description: Removed }
+
+  /projects:
+    get:
+      tags: [Projects]
+      summary: List projects the caller is a member of (Admin sees all)
+      parameters:
+        - { name: category, in: query, schema: { $ref: "#/components/schemas/ProjectCategory" } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { type: object, properties: { projects: { type: array, items: { $ref: "#/components/schemas/Project" } } } }
+    post:
+      tags: [Projects]
+      summary: Create a project (PM/Admin). CLIENT requires clientId; category is immutable after creation.
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProjectInput" }
+      responses:
+        "201": { description: Created }
+        "400": { description: "CLIENT category without clientId, or clientId on an INTERNAL project" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /projects/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      tags: [Projects]
+      summary: Project detail with engagement roster and task count (project members only)
+      responses:
+        "200": { description: OK }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [Projects]
+      summary: Update status/priority/dates/tags/team (owner or Admin). category/clientId are not editable.
+      responses:
+        "200": { description: Updated }
+  /projects/{id}/engagements:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      tags: [Projects]
+      summary: List engagement roster (PM/Admin)
+      responses:
+        "200": { description: OK }
+    post:
+      tags: [Projects]
+      summary: Assign an employee with an engagement % (PM/Admin). Over-100% is a warning, not a block.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, engagementPct]
+              properties:
+                userId: { type: string, format: uuid }
+                engagementPct: { type: integer, minimum: 0, maximum: 100 }
+                isBillable: { type: boolean }
+                notes: { type: string }
+      responses:
+        "201":
+          description: Assigned
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EngagementMutationResult" }
+        "409": { description: User already engaged on this project }
+  /projects/{id}/engagements/{userId}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: userId, in: path, required: true, schema: { type: string, format: uuid } }
+    patch:
+      tags: [Projects]
+      summary: Update an engagement % (PM/Admin)
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EngagementMutationResult" }
+    delete:
+      tags: [Projects]
+      summary: Remove an engagement (PM/Admin)
+      responses:
+        "204": { description: Removed }
+
+  /projects/{projectId}/tasks:
+    parameters:
+      - { name: projectId, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      tags: [Tasks]
+      summary: List top-level tasks for a project (members only; 403 if CLIENT and tasksEnabled=false)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { type: object, properties: { tasks: { type: array, items: { $ref: "#/components/schemas/Task" } } } }
+        "403": { description: Task tracking not enabled for this CLIENT project }
+    post:
+      tags: [Tasks]
+      summary: Create a task (project members, role >= MEMBER). Subtasks are one level deep only.
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TaskInput" }
+      responses:
+        "201": { description: Created }
+        "400": { description: Invalid parent task, or subtask depth exceeded }
+
+  /tasks/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      tags: [Tasks]
+      summary: Task detail with subtasks and assignments (project members only)
+      responses:
+        "200": { description: OK }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [Tasks]
+      summary: Update status/progress/due date/priority (assignee, creator-while-still-on-project, or PM/Admin)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                description: { type: string }
+                status: { $ref: "#/components/schemas/TaskStatus" }
+                progressPct: { type: integer, minimum: 0, maximum: 100, description: "Must be a multiple of 5" }
+                dueDate: { type: string, format: date }
+                priority: { $ref: "#/components/schemas/TaskPriority" }
+      responses:
+        "200": { description: Updated }
+        "400": { description: progressPct not a multiple of 5 }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /tasks/{id}/assign:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    post:
+      tags: [Tasks]
+      summary: Assign users to a task with an engagement % each (PM)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                required: [userId, engagementPct]
+                properties: { userId: { type: string, format: uuid }, engagementPct: { type: integer, minimum: 0, maximum: 100 } }
+      responses:
+        "201": { description: Assigned }
+  /tasks/{id}/assign/{userId}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: userId, in: path, required: true, schema: { type: string, format: uuid } }
+    delete:
+      tags: [Tasks]
+      summary: Unassign a user from a task (PM)
+      responses:
+        "204": { description: Unassigned }
+
+  /dashboard:
+    get:
+      tags: [Dashboard]
+      summary: Role-aware dashboard (Admin/PM/Member/Viewer shape, discriminated by `role`)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Dashboard" }
+  /dashboard/admin:
+    get:
+      tags: [Dashboard]
+      summary: Company capacity dashboard (Admin only)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminDashboard" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    Forbidden:
+      description: Caller's role/relationship to the resource doesn't permit this action
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    NotFound:
+      description: Not found (or caller has no access — the two are indistinguishable by design)
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    ValidationError:
+      description: Request body failed validation
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error: { type: string }
+        code: { type: string }
+        details: { type: object, additionalProperties: true }
+
+    Role: { type: string, enum: [ADMIN, PM, MEMBER, VIEWER] }
+    ProjectCategory: { type: string, enum: [CLIENT, INTERNAL] }
+    ProjectStatus: { type: string, enum: [ACTIVE, ON_HOLD, COMPLETED, CANCELLED, ARCHIVED] }
+    ProjectPriority: { type: string, enum: [LOW, MEDIUM, HIGH, CRITICAL] }
+    TaskStatus: { type: string, enum: [BACKLOG, TODO, IN_PROGRESS, IN_REVIEW, DONE, ARCHIVED] }
+    TaskPriority: { type: string, enum: [LOW, MEDIUM, HIGH, CRITICAL] }
+
+    User:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string, format: email }
+        name: { type: string }
+        role: { $ref: "#/components/schemas/Role" }
+        avatarUrl: { type: string, nullable: true }
+        isActive: { type: boolean }
+        createdAt: { type: string, format: date-time }
+
+    Client:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        contactPerson: { type: string, nullable: true }
+        email: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+        isActive: { type: boolean }
+        createdById: { type: string, format: uuid }
+
+    ClientInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        contactPerson: { type: string }
+        email: { type: string, format: email }
+        phone: { type: string }
+        notes: { type: string }
+
+    Team:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        description: { type: string, nullable: true }
+        createdById: { type: string, format: uuid }
+
+    Project:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        description: { type: string, nullable: true }
+        category: { $ref: "#/components/schemas/ProjectCategory" }
+        status: { $ref: "#/components/schemas/ProjectStatus" }
+        priority: { $ref: "#/components/schemas/ProjectPriority" }
+        tasksEnabled: { type: boolean }
+        startDate: { type: string, format: date, nullable: true }
+        endDate: { type: string, format: date, nullable: true }
+        tags: { type: array, items: { type: string } }
+        ownerId: { type: string, format: uuid }
+        teamId: { type: string, format: uuid, nullable: true }
+        clientId: { type: string, format: uuid, nullable: true }
+
+    ProjectInput:
+      type: object
+      required: [name, category]
+      properties:
+        name: { type: string }
+        category: { $ref: "#/components/schemas/ProjectCategory" }
+        clientId: { type: string, format: uuid, description: Required when category=CLIENT }
+        priority: { $ref: "#/components/schemas/ProjectPriority" }
+        startDate: { type: string, format: date }
+        endDate: { type: string, format: date }
+        tags: { type: array, items: { type: string } }
+        teamId: { type: string, format: uuid }
+
+    EngagementMutationResult:
+      type: object
+      properties:
+        engagement: { type: object }
+        previousTotal: { type: integer }
+        newTotal: { type: integer }
+        isOverAllocated: { type: boolean }
+
+    EngagementTotal:
+      type: object
+      properties:
+        total: { type: integer }
+        isOverAllocated: { type: boolean }
+        breakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              projectId: { type: string, format: uuid }
+              projectName: { type: string }
+              category: { $ref: "#/components/schemas/ProjectCategory" }
+              engagementPct: { type: integer }
+              isBillable: { type: boolean }
+
+    TaskInput:
+      type: object
+      required: [title]
+      properties:
+        title: { type: string }
+        description: { type: string }
+        priority: { $ref: "#/components/schemas/TaskPriority" }
+        dueDate: { type: string, format: date }
+        parentTaskId: { type: string, format: uuid, description: Must reference a top-level task in the same project }
+
+    Task:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        description: { type: string, nullable: true }
+        status: { $ref: "#/components/schemas/TaskStatus" }
+        priority: { $ref: "#/components/schemas/TaskPriority" }
+        progressPct: { type: integer }
+        dueDate: { type: string, format: date, nullable: true }
+        projectId: { type: string, format: uuid }
+        parentTaskId: { type: string, format: uuid, nullable: true }
+        createdById: { type: string, format: uuid }
+
+    AdminDashboard:
+      type: object
+      properties:
+        role: { type: string, enum: [ADMIN] }
+        summary:
+          type: object
+          properties:
+            totalHeadcount: { type: integer }
+            onClientCount: { type: integer }
+            internalOnlyCount: { type: integer }
+            unassignedCount: { type: integer }
+            overAllocatedCount: { type: integer }
+            avgUtilization: { type: integer }
+        employees:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string, format: uuid }
+              name: { type: string }
+              clientPct: { type: integer }
+              internalPct: { type: integer }
+              total: { type: integer }
+              isOverAllocated: { type: boolean }
+        clientProjects: { type: array, items: { type: object } }
+        internalProjects: { type: array, items: { type: object } }
+
+    Dashboard:
+      oneOf:
+        - $ref: "#/components/schemas/AdminDashboard"
+        - type: object
+          properties: { role: { type: string, enum: [PM] } }
+        - type: object
+          properties: { role: { type: string, enum: [MEMBER] } }
+        - type: object
+          properties: { role: { type: string, enum: [VIEWER] } }
+      discriminator:
+        propertyName: role
