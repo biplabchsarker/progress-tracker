@@ -42,25 +42,25 @@ export default function ProjectsPage() {
       <h1 className="text-2xl font-bold mb-6">Projects</h1>
 
       {canCreate && (
-        <form onSubmit={handleCreate} className="bg-slate-900 border border-slate-800 rounded-lg p-4 mb-6 flex gap-3 flex-wrap items-end">
+        <form onSubmit={handleCreate} className="bg-white border border-slate-200 rounded-lg p-4 mb-6 flex gap-3 flex-wrap items-end dark:bg-slate-900 dark:border-slate-800">
           <div>
-            <label className="block text-xs text-slate-400 mb-1">Name</label>
+            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Name</label>
             <input value={name} onChange={(e) => setName(e.target.value)} required
-              className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white" />
+              className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white" />
           </div>
           <div>
-            <label className="block text-xs text-slate-400 mb-1">Category</label>
+            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Category</label>
             <select value={category} onChange={(e) => setCategory(e.target.value as ProjectCategory)}
-              className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white">
+              className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
               <option value="INTERNAL">INTERNAL</option>
               <option value="CLIENT">CLIENT</option>
             </select>
           </div>
           {category === 'CLIENT' && (
             <div>
-              <label className="block text-xs text-slate-400 mb-1">Client</label>
+              <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Client</label>
               <select value={clientId} onChange={(e) => setClientId(e.target.value)} required
-                className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white min-w-[160px]">
+                className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm text-slate-900 min-w-[160px] dark:bg-slate-800 dark:border-slate-700 dark:text-white">
                 <option value="">Select a client…</option>
                 {clients?.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
@@ -72,7 +72,7 @@ export default function ProjectsPage() {
             className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-semibold px-4 py-1.5 rounded-lg">
             Add project
           </button>
-          {error && <p className="text-red-400 text-xs w-full">{error}</p>}
+          {error && <p className="text-red-600 dark:text-red-400 text-xs w-full">{error}</p>}
         </form>
       )}
 
@@ -87,7 +87,7 @@ export default function ProjectsPage() {
             {
               key: 'name',
               header: 'Name',
-              render: (p: Project) => <Link to={`/projects/${p.id}`} className="text-blue-400 hover:text-blue-300">{p.name}</Link>,
+              render: (p: Project) => <Link to={`/projects/${p.id}`} className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">{p.name}</Link>,
             },
             {
               key: 'category',

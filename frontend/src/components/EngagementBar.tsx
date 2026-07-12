@@ -1,6 +1,6 @@
 export function EngagementLegend() {
   return (
-    <div className="flex items-center gap-4 text-xs text-slate-400 mb-3">
+    <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400 mb-3">
       <span className="flex items-center gap-1.5">
         <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 inline-block" /> Client
       </span>
@@ -32,8 +32,8 @@ export default function EngagementBar({
 
   return (
     <div className="flex items-center gap-3 group">
-      <span className="text-sm text-slate-300 w-32 shrink-0 truncate">{label}</span>
-      <div className="flex-1 h-6 rounded-r-full bg-slate-800/70 ring-1 ring-inset ring-slate-700/50 overflow-hidden flex">
+      <span className="text-sm text-slate-700 dark:text-slate-300 w-32 shrink-0 truncate">{label}</span>
+      <div className="flex-1 h-6 rounded-r-full bg-slate-100 ring-1 ring-inset ring-slate-200 dark:bg-slate-800/70 dark:ring-slate-700/50 overflow-hidden flex">
         {clientWidth > 0 && (
           <div
             className={`h-full bg-gradient-to-b from-teal-400 to-teal-600 ${!internalIsLast ? 'rounded-r-full' : ''}`}
@@ -49,15 +49,15 @@ export default function EngagementBar({
           />
         )}
       </div>
-      <span className="text-sm font-semibold text-slate-200 w-12 text-right shrink-0">{total}%</span>
+      <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 w-12 text-right shrink-0">{total}%</span>
       {isOverAllocated && (
-        <span className="text-xs font-medium px-2 py-0.5 rounded-full border border-red-800 bg-red-950 text-red-400 shrink-0">OVER</span>
+        <span className="text-xs font-medium px-2 py-0.5 rounded-full border border-red-200 bg-red-50 text-red-600 dark:border-red-800 dark:bg-red-950 dark:text-red-400 shrink-0">OVER</span>
       )}
       {isUnderAllocated && !isOverAllocated && (
-        <span className="text-xs font-medium px-2 py-0.5 rounded-full border border-amber-800 bg-amber-950 text-amber-400 shrink-0">UNDER</span>
+        <span className="text-xs font-medium px-2 py-0.5 rounded-full border border-amber-200 bg-amber-50 text-amber-600 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-400 shrink-0">UNDER</span>
       )}
       {!isOverAllocated && !isUnderAllocated && (
-        <span className="text-xs font-medium px-2 py-0.5 rounded-full border border-green-800 bg-green-950 text-green-400 shrink-0">OK</span>
+        <span className="text-xs font-medium px-2 py-0.5 rounded-full border border-green-200 bg-green-50 text-green-600 dark:border-green-800 dark:bg-green-950 dark:text-green-400 shrink-0">OK</span>
       )}
     </div>
   );

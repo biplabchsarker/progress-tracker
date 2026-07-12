@@ -44,27 +44,27 @@ export default function ClientsPage() {
     <div>
       <h1 className="text-2xl font-bold mb-6">Clients</h1>
 
-      <form onSubmit={handleCreate} className="bg-slate-900 border border-slate-800 rounded-lg p-4 mb-6 flex gap-3 flex-wrap items-end">
+      <form onSubmit={handleCreate} className="bg-white border border-slate-200 rounded-lg p-4 mb-6 flex gap-3 flex-wrap items-end dark:bg-slate-900 dark:border-slate-800">
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Name</label>
+          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Name</label>
           <input value={name} onChange={(e) => setName(e.target.value)} required
-            className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white" />
+            className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white" />
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Contact person</label>
+          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Contact person</label>
           <input value={contactPerson} onChange={(e) => setContactPerson(e.target.value)}
-            className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white" />
+            className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white" />
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Email</label>
+          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Email</label>
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-            className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white" />
+            className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white" />
         </div>
         <button type="submit" disabled={createClient.isPending}
           className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-semibold px-4 py-1.5 rounded-lg">
           Add client
         </button>
-        {error && <p className="text-red-400 text-xs w-full">{error}</p>}
+        {error && <p className="text-red-600 dark:text-red-400 text-xs w-full">{error}</p>}
       </form>
 
       {isLoading ? (
@@ -82,7 +82,7 @@ export default function ClientsPage() {
               key: 'actions',
               header: '',
               render: (c) => (
-                <button onClick={() => handleDelete(c)} className="text-red-400 hover:text-red-300 text-xs">
+                <button onClick={() => handleDelete(c)} className="text-red-600 hover:text-red-500 dark:text-red-400 dark:hover:text-red-300 text-xs">
                   Archive
                 </button>
               ),

@@ -44,16 +44,16 @@ export default function StatTile({
   meterPct?: number;
 }) {
   return (
-    <div className="relative overflow-hidden bg-slate-900 border border-slate-800 rounded-xl p-4 transition-colors hover:border-slate-700">
+    <div className="relative overflow-hidden bg-white border border-slate-200 rounded-xl p-4 transition-colors hover:border-slate-300 shadow-sm dark:bg-slate-900 dark:border-slate-800 dark:hover:border-slate-700 dark:shadow-none">
       <div className={`pointer-events-none absolute -top-10 -right-10 w-28 h-28 rounded-full blur-2xl ${TONE_GLOW[tone]}`} />
       <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${TONE_BAR[tone]}`} />
 
       <p className="relative text-xs font-medium uppercase tracking-wide text-slate-500 mb-1.5">{label}</p>
-      <p className="relative text-3xl font-bold text-white leading-tight">{value}</p>
+      <p className="relative text-3xl font-bold text-slate-900 dark:text-white leading-tight">{value}</p>
       {hint && <p className={`relative text-xs mt-1.5 font-medium ${TONE_TEXT[tone]}`}>{hint}</p>}
 
       {meterPct !== undefined && (
-        <div className="relative mt-3 h-1.5 rounded-full bg-slate-800 overflow-hidden">
+        <div className="relative mt-3 h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
           <div
             className={`h-full rounded-full bg-gradient-to-r ${TONE_BAR[tone]}`}
             style={{ width: `${Math.max(0, Math.min(meterPct, 100))}%` }}

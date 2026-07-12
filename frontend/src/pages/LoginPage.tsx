@@ -31,37 +31,37 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-      <div className="bg-slate-800 p-8 rounded-xl border border-slate-700 w-full max-w-md">
-        <h1 className="text-2xl font-bold text-white mb-2">Progress Tracker</h1>
-        <p className="text-slate-400 text-sm mb-8">Sign in to your account</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex items-center justify-center">
+      <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-lg shadow-slate-200/50 w-full max-w-md dark:bg-slate-800 dark:border-slate-700 dark:shadow-none">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Progress Tracker</h1>
+        <p className="text-slate-500 dark:text-slate-400 text-sm mb-8">Sign in to your account</p>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-950 border border-red-800 text-red-300 text-sm rounded-lg px-4 py-2.5">
+            <div className="bg-red-50 border border-red-200 text-red-600 dark:bg-red-950 dark:border-red-800 dark:text-red-300 text-sm rounded-lg px-4 py-2.5">
               {error}
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Email</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email</label>
             <input
               type="email"
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 text-sm"
+              className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Password</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Password</label>
             <input
               type="password"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 text-sm"
+              className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-500"
             />
           </div>
           <button
@@ -75,7 +75,7 @@ export default function LoginPage() {
 
         <p className="text-center text-slate-500 text-xs mt-6">
           Don't have an account?{' '}
-          <a href="/register" className="text-blue-400 hover:text-blue-300">Register</a>
+          <a href="/register" className="text-blue-500 hover:text-blue-400 dark:text-blue-400 dark:hover:text-blue-300">Register</a>
         </p>
       </div>
     </div>

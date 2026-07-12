@@ -47,7 +47,7 @@ export default function UsersPage() {
                 <select
                   value={u.role}
                   onChange={(e) => handleRoleChange(u, e.target.value as Role)}
-                  className="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white"
+                  className="bg-white border border-slate-300 rounded-lg px-2 py-1 text-xs text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white"
                 >
                   {ROLES.map((r) => (
                     <option key={r} value={r}>{r}</option>
@@ -63,8 +63,8 @@ export default function UsersPage() {
                   onClick={() => handleToggleActive(u)}
                   className={`text-xs px-2 py-0.5 rounded-full border ${
                     u.isActive
-                      ? 'border-green-700 text-green-400 hover:bg-green-950'
-                      : 'border-slate-700 text-slate-500 hover:bg-slate-800'
+                      ? 'border-green-300 text-green-600 hover:bg-green-50 dark:border-green-700 dark:text-green-400 dark:hover:bg-green-950'
+                      : 'border-slate-300 text-slate-500 hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800'
                   }`}
                 >
                   {u.isActive ? 'Active' : 'Inactive'}

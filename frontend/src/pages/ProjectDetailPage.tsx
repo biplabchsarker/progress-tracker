@@ -44,19 +44,19 @@ function EngagementPanel({ projectId, canManage }: { projectId: string; canManag
   }
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
+    <div className="bg-white border border-slate-200 rounded-lg p-4 dark:bg-slate-900 dark:border-slate-800">
       <h2 className="font-semibold mb-3">Engagement roster</h2>
 
       <ul className="space-y-1 mb-4">
         {engaged.length ? (
           engaged.map((e) => (
-            <li key={e.userId} className="flex items-center justify-between text-sm bg-slate-800 rounded-lg px-3 py-2">
+            <li key={e.userId} className="flex items-center justify-between text-sm bg-slate-100 rounded-lg px-3 py-2 dark:bg-slate-800">
               <span>
                 {e.user.name} — <span className="font-medium">{e.engagementPct}%</span>
-                {e.isBillable && <span className="text-teal-400 text-xs ml-2">billable</span>}
+                {e.isBillable && <span className="text-teal-600 dark:text-teal-400 text-xs ml-2">billable</span>}
               </span>
               {canManage && (
-                <button onClick={() => removeEngagement.mutate(e.userId)} className="text-red-400 hover:text-red-300 text-xs">
+                <button onClick={() => removeEngagement.mutate(e.userId)} className="text-red-600 hover:text-red-500 dark:text-red-400 dark:hover:text-red-300 text-xs">
                   Remove
                 </button>
               )}
@@ -70,9 +70,9 @@ function EngagementPanel({ projectId, canManage }: { projectId: string; canManag
       {canManage && (
         <form onSubmit={handleAdd} className="flex gap-2 items-end flex-wrap">
           <div>
-            <label className="block text-xs text-slate-400 mb-1">Add engagement</label>
+            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Add engagement</label>
             <select value={userId} onChange={(e) => setUserId(e.target.value)}
-              className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white min-w-[160px]">
+              className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm text-slate-900 min-w-[160px] dark:bg-slate-800 dark:border-slate-700 dark:text-white">
               <option value="">Select a user…</option>
               {availableUsers.map((u) => (
                 <option key={u.id} value={u.id}>{u.name}</option>
@@ -80,11 +80,11 @@ function EngagementPanel({ projectId, canManage }: { projectId: string; canManag
             </select>
           </div>
           <div>
-            <label className="block text-xs text-slate-400 mb-1">Engagement %</label>
+            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Engagement %</label>
             <input type="number" min={0} max={100} value={pct} onChange={(e) => setPct(Number(e.target.value))}
-              className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white w-20" />
+              className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm text-slate-900 w-20 dark:bg-slate-800 dark:border-slate-700 dark:text-white" />
           </div>
-          <label className="flex items-center gap-1.5 text-xs text-slate-400 pb-2">
+          <label className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 pb-2">
             <input type="checkbox" checked={isBillable} onChange={(e) => setIsBillable(e.target.checked)} />
             Billable
           </label>
@@ -92,9 +92,9 @@ function EngagementPanel({ projectId, canManage }: { projectId: string; canManag
             className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-semibold px-4 py-1.5 rounded-lg">
             Add
           </button>
-          {error && <p className="text-red-400 text-xs w-full">{error}</p>}
+          {error && <p className="text-red-600 dark:text-red-400 text-xs w-full">{error}</p>}
           {preview && (
-            <p className={`text-xs w-full ${preview.isOverAllocated ? 'text-amber-400' : 'text-slate-500'}`}>
+            <p className={`text-xs w-full ${preview.isOverAllocated ? 'text-amber-600 dark:text-amber-400' : 'text-slate-500'}`}>
               User's total engagement: {preview.previousTotal}% → {preview.newTotal}%
               {preview.isOverAllocated && ' — over-allocated'}
             </p>
@@ -125,18 +125,18 @@ function TaskRow({
   const [assignee, setAssignee] = useState('');
 
   return (
-    <li className={`bg-slate-800 rounded-lg px-3 py-2 ${indent ? 'ml-8' : ''}`}>
+    <li className={`bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-2 ${indent ? 'ml-8' : ''}`}>
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <span className="text-sm">{task.title}</span>
         <div className="flex items-center gap-2">
           <select value={task.status} onChange={(e) => onUpdateStatus(task.id, e.target.value as TaskStatus)}
-            className="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white">
+            className="bg-white border border-slate-300 rounded-lg px-2 py-1 text-xs text-slate-900 dark:bg-slate-900 dark:border-slate-700 dark:text-white">
             {STATUSES.map((s) => (
               <option key={s} value={s}>{s}</option>
             ))}
           </select>
           <select value={task.progressPct} onChange={(e) => onUpdateProgress(task.id, Number(e.target.value))}
-            className="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white">
+            className="bg-white border border-slate-300 rounded-lg px-2 py-1 text-xs text-slate-900 dark:bg-slate-900 dark:border-slate-700 dark:text-white">
             {PROGRESS_STEPS.map((p) => (
               <option key={p} value={p}>{p}%</option>
             ))}
@@ -145,13 +145,13 @@ function TaskRow({
       </div>
       <div className="flex items-center gap-2 mt-2 flex-wrap">
         {task.assignments.map((a) => (
-          <span key={a.userId} className="text-xs bg-slate-900 border border-slate-700 rounded-full px-2 py-0.5 flex items-center gap-1">
+          <span key={a.userId} className="text-xs bg-white border border-slate-300 rounded-full px-2 py-0.5 flex items-center gap-1 dark:bg-slate-900 dark:border-slate-700">
             {a.user.name}
-            <button onClick={() => onUnassign(task.id, a.userId)} className="text-red-400 hover:text-red-300">×</button>
+            <button onClick={() => onUnassign(task.id, a.userId)} className="text-red-600 hover:text-red-500 dark:text-red-400 dark:hover:text-red-300">×</button>
           </span>
         ))}
         <select value={assignee} onChange={(e) => setAssignee(e.target.value)}
-          className="bg-slate-900 border border-slate-700 rounded-lg px-2 py-0.5 text-xs text-white">
+          className="bg-white border border-slate-300 rounded-lg px-2 py-0.5 text-xs text-slate-900 dark:bg-slate-900 dark:border-slate-700 dark:text-white">
           <option value="">Assign…</option>
           {availableUsers.map((u) => (
             <option key={u.id} value={u.id}>{u.name}</option>
@@ -160,7 +160,7 @@ function TaskRow({
         <button
           disabled={!assignee}
           onClick={() => { onAssign(task.id, assignee); setAssignee(''); }}
-          className="text-blue-400 hover:text-blue-300 disabled:opacity-40 text-xs"
+          className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 disabled:opacity-40 text-xs"
         >
           Add
         </button>
@@ -194,20 +194,20 @@ function TasksPanel({ projectId }: { projectId: string }) {
   const topLevel = (tasks ?? []).filter((t) => !t.parentTaskId);
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-lg p-4 mt-4">
+    <div className="bg-white border border-slate-200 rounded-lg p-4 mt-4 dark:bg-slate-900 dark:border-slate-800">
       <h2 className="font-semibold mb-3">Tasks</h2>
 
       <form onSubmit={handleCreate} className="flex gap-2 items-end mb-4">
         <div>
-          <label className="block text-xs text-slate-400 mb-1">New task</label>
+          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">New task</label>
           <input value={title} onChange={(e) => setTitle(e.target.value)} required
-            className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white min-w-[240px]" />
+            className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm text-slate-900 min-w-[240px] dark:bg-slate-800 dark:border-slate-700 dark:text-white" />
         </div>
         <button type="submit" disabled={createTask.isPending}
           className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-semibold px-4 py-1.5 rounded-lg">
           Add task
         </button>
-        {error && <p className="text-red-400 text-xs">{error}</p>}
+        {error && <p className="text-red-600 dark:text-red-400 text-xs">{error}</p>}
       </form>
 
       {isLoading ? (
@@ -248,11 +248,11 @@ export default function ProjectDetailPage() {
 
   return (
     <div>
-      <Link to="/projects" className="text-slate-500 hover:text-white text-xs">← Back to projects</Link>
+      <Link to="/projects" className="text-slate-500 hover:text-slate-900 dark:hover:text-white text-xs">← Back to projects</Link>
       <div className="flex items-center gap-3 mt-2 mb-6">
         <h1 className="text-2xl font-bold">{project.name}</h1>
-        <span className="text-xs px-2 py-0.5 rounded-full border border-slate-700 text-slate-400">{project.category}</span>
-        <span className="text-xs px-2 py-0.5 rounded-full border border-slate-700 text-slate-400">{project.status}</span>
+        <span className="text-xs px-2 py-0.5 rounded-full border border-slate-300 text-slate-600 dark:border-slate-700 dark:text-slate-400">{project.category}</span>
+        <span className="text-xs px-2 py-0.5 rounded-full border border-slate-300 text-slate-600 dark:border-slate-700 dark:text-slate-400">{project.status}</span>
       </div>
 
       <EngagementPanel projectId={project.id} canManage={canManage} />

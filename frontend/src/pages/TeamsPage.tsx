@@ -31,20 +31,20 @@ function TeamDetail({ teamId, onClose }: { teamId: string; onClose: () => void }
   }
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-lg p-4 mt-4">
+    <div className="bg-white border border-slate-200 rounded-lg p-4 mt-4 dark:bg-slate-900 dark:border-slate-800">
       <div className="flex items-center justify-between mb-3">
         <h2 className="font-semibold">{team?.name} — Members</h2>
-        <button onClick={onClose} className="text-slate-500 hover:text-white text-xs">Close</button>
+        <button onClick={onClose} className="text-slate-500 hover:text-slate-900 dark:hover:text-white text-xs">Close</button>
       </div>
 
       <ul className="space-y-1 mb-4">
         {team?.members?.length ? (
           team.members.map((m) => (
-            <li key={m.userId} className="flex items-center justify-between text-sm bg-slate-800 rounded-lg px-3 py-2">
+            <li key={m.userId} className="flex items-center justify-between text-sm bg-slate-100 rounded-lg px-3 py-2 dark:bg-slate-800">
               <span>{m.user.name} <span className="text-slate-500">({m.teamRole})</span></span>
               <button
                 onClick={() => removeMember.mutate(m.userId)}
-                className="text-red-400 hover:text-red-300 text-xs"
+                className="text-red-600 hover:text-red-500 dark:text-red-400 dark:hover:text-red-300 text-xs"
               >
                 Remove
               </button>
@@ -57,9 +57,9 @@ function TeamDetail({ teamId, onClose }: { teamId: string; onClose: () => void }
 
       <form onSubmit={handleAdd} className="flex gap-2 items-end flex-wrap">
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Add member</label>
+          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Add member</label>
           <select value={userId} onChange={(e) => setUserId(e.target.value)}
-            className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white min-w-[180px]">
+            className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm text-slate-900 min-w-[180px] dark:bg-slate-800 dark:border-slate-700 dark:text-white">
             <option value="">Select a user…</option>
             {availableUsers.map((u) => (
               <option key={u.id} value={u.id}>{u.name}</option>
@@ -67,9 +67,9 @@ function TeamDetail({ teamId, onClose }: { teamId: string; onClose: () => void }
           </select>
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Team role</label>
+          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Team role</label>
           <select value={teamRole} onChange={(e) => setTeamRole(e.target.value as TeamRole)}
-            className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white">
+            className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
             <option value="MEMBER">MEMBER</option>
             <option value="LEAD">LEAD</option>
           </select>
@@ -78,7 +78,7 @@ function TeamDetail({ teamId, onClose }: { teamId: string; onClose: () => void }
           className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-semibold px-4 py-1.5 rounded-lg">
           Add
         </button>
-        {error && <p className="text-red-400 text-xs w-full">{error}</p>}
+        {error && <p className="text-red-600 dark:text-red-400 text-xs w-full">{error}</p>}
       </form>
     </div>
   );
@@ -108,22 +108,22 @@ export default function TeamsPage() {
     <div>
       <h1 className="text-2xl font-bold mb-6">Teams</h1>
 
-      <form onSubmit={handleCreate} className="bg-slate-900 border border-slate-800 rounded-lg p-4 mb-6 flex gap-3 flex-wrap items-end">
+      <form onSubmit={handleCreate} className="bg-white border border-slate-200 rounded-lg p-4 mb-6 flex gap-3 flex-wrap items-end dark:bg-slate-900 dark:border-slate-800">
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Name</label>
+          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Name</label>
           <input value={name} onChange={(e) => setName(e.target.value)} required
-            className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white" />
+            className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white" />
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Description</label>
+          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Description</label>
           <input value={description} onChange={(e) => setDescription(e.target.value)}
-            className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white" />
+            className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white" />
         </div>
         <button type="submit" disabled={createTeam.isPending}
           className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-semibold px-4 py-1.5 rounded-lg">
           Add team
         </button>
-        {error && <p className="text-red-400 text-xs w-full">{error}</p>}
+        {error && <p className="text-red-600 dark:text-red-400 text-xs w-full">{error}</p>}
       </form>
 
       {isLoading ? (
@@ -141,7 +141,7 @@ export default function TeamsPage() {
               key: 'actions',
               header: '',
               render: (t) => (
-                <button onClick={() => setOpenTeamId(t.id)} className="text-blue-400 hover:text-blue-300 text-xs">
+                <button onClick={() => setOpenTeamId(t.id)} className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 text-xs">
                   Manage members
                 </button>
               ),

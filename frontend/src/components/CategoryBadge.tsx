@@ -1,8 +1,8 @@
 import type { ProjectCategory } from '../types/entities';
 
 const CATEGORY_BADGE_CLASS: Record<ProjectCategory, string> = {
-  CLIENT: 'bg-teal-950 text-teal-400 border-teal-800',
-  INTERNAL: 'bg-purple-950 text-purple-400 border-purple-800',
+  CLIENT: 'bg-teal-50 text-teal-600 border-teal-200 dark:bg-teal-950 dark:text-teal-400 dark:border-teal-800',
+  INTERNAL: 'bg-purple-50 text-purple-600 border-purple-200 dark:bg-purple-950 dark:text-purple-400 dark:border-purple-800',
 };
 
 export default function CategoryBadge({ category }: { category: ProjectCategory }) {
